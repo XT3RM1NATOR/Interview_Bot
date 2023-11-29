@@ -1,25 +1,25 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ChatList } from "./ChatList.ts";
-import { InterviewerSlot } from "./InterviewerSlot.ts";
-import { User } from "./User.ts";
+import { ChatList } from "./ChatList";
+import { InterviewerSlot } from "./InterviewerSlot";
+import { User } from "./User";
 
 @Entity()
 export class ScheduledInterview {
     @PrimaryGeneratedColumn()
-    schedule_id: number
+    schedule_id!: number
 
     @ManyToOne(() => User)
-    interviewee: User;
+    interviewee!: User;
 
     @ManyToOne(() => User)
-    interviewer: User;
+    interviewer!: User;
 
     @ManyToOne(() => InterviewerSlot)
-    slot: InterviewerSlot;
+    slot!: InterviewerSlot;
 
     @ManyToOne(() => ChatList)
-    chat: ChatList;
+    chat!: ChatList;
 
     @Column()
-    scheduled_date: Date
+    scheduled_date!: Date
 }
