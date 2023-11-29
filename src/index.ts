@@ -1,7 +1,7 @@
 import { Context, Telegraf } from 'telegraf';
 
 // Create a new instance of Telegraf bot using your bot token
-const bot = new Telegraf('6961764510:AAG9nxdNlrCTN1bIsjiC53PqXoy4-q5YPEc');
+const bot = new Telegraf('');
 
 // Command to list available commands
 bot.command('help', (ctx: Context) => {
