@@ -12,13 +12,13 @@ export class User {
     role!: string
 
     @Column()
+    chat_id!: number
+
+    @Column()
     timezone?: string
 
     @Column()
     approved?:boolean
-
-    @Column()
-    chat_id!: number
 
     @Column()
     description?: string

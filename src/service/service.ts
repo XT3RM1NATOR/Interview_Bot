@@ -11,3 +11,9 @@ export const addUserToDatabase = async(username: string, role: string, chat_id: 
   console.log(newUser);
   return await UserRepository.save(newUser);
 }
+
+export const isValidGMTFormat = (text: string): boolean => {
+  const gmtRegex = /^(-?(?:1[0-2]|[0-9])(?:\.30)?|-12)$/;
+
+  return gmtRegex.test(text.trim());
+};
