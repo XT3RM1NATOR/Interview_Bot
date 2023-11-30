@@ -4,7 +4,7 @@ import { adminHandler } from './handlers/adminHandler';
 import { intervieweeHandler } from './handlers/intervieweeHandler';
 import { interviewerHandler } from './handlers/interviewerHandler';
 import UserRepository from './repository/UserRepository';
-import { Confirmation, Rejection, addUserToDatabase, changeDescription, isValidGMTFormat, sendMessagesToAdmins } from './service/service';
+import { Confirmation, Rejection, addUserToDatabase, changeDescription, deleteAccount, isValidGMTFormat, sendMessagesToAdmins } from './service/service';
 
 dotenv.config({ path: '../.env' });
 
@@ -57,6 +57,11 @@ bot.command('newdescription', async (ctx) => {
   if(ctx.session) { ctx.session.newDescriptionStage = true; ctx.reply("Кидай новое описание"); }
   else ctx.reply("Для начала нажми /start")
 });
+
+bot.command('deleteaccount', (ctx) => {
+  const chatId = ctx.message.chat.id;
+  deleteAccount(ctx, chatId);
+})
 
 bot.hears(/^✅|^🚫/, async (ctx) => {
   if (ctx.session?.role === "admin") {
