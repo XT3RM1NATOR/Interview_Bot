@@ -4,7 +4,7 @@ import { adminHandler } from './handlers/adminHandler';
 import { intervieweeHandler } from './handlers/intervieweeHandler';
 import { interviewerHandler } from './handlers/interviewerHandler';
 import UserRepository from './repository/UserRepository';
-import { Confirmation, Rejection, addUserToDatabase, isValidGMTFormat, sendMessagesToAdmins } from './service/service';
+import { Confirmation, Rejection, addUserToDatabase, changeDescription, isValidGMTFormat, sendMessagesToAdmins } from './service/service';
 
 dotenv.config({ path: '../.env' });
 
@@ -16,6 +16,7 @@ interface SessionData {
   timezone: string;
   description: string;
   interviewer: boolean;
+  newDescriptionStage: boolean;
 }
 
 // Define your own context type
@@ -35,7 +36,8 @@ bot.command('start', (ctx) => {
     description: "",
     gmtStage: false,
     descriptionStage: false,
-    interviewer:false
+    interviewer:false,
+    newDescriptionStage: false
    };
 
   const options = [
@@ -49,6 +51,11 @@ bot.command('start', (ctx) => {
       resize_keyboard: true // Allow the keyboard to be resized by the user
     }
   });
+});
+
+bot.command('newdescription', async (ctx) => {
+  if(ctx.session) { ctx.session.newDescriptionStage = true; ctx.reply("Кидай новое описание"); }
+  else ctx.reply("Для начала нажми /start")
 });
 
 bot.hears(/^✅|^🚫/, async (ctx) => {
@@ -125,7 +132,12 @@ bot.on('text', async (ctx) => {
       ctx.reply("Ты успешно зарегестрировался");
       await addUserToDatabase(username, "interviewee", chat_id, timezone, info, true);
     }
-  } else {
+  } else if(ctx.session?.newDescriptionStage){
+    const chatId = ctx.message.chat.id;
+    const newDescription = ctx.message.text;
+    ctx.session.newDescriptionStage = false;
+    await changeDescription(ctx, chatId, newDescription);
+  }else {
     ctx.reply("Команда пока не распознана");
   }
 });

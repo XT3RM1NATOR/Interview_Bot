@@ -39,7 +39,6 @@ export const sendMessagesToAdmins = async (ctx: any, user: User) => {
   try{
 
     const admins = await getAdmins();
-
     const options = [
       [`✅${user.id}`, `🚫${user.id}`]
     ];
@@ -98,13 +97,31 @@ export const Rejection = async (ctx: any, chat_id: number) => {
     await ctx.telegram.sendMessage(chat_id, "Вы не были одобрены... Что теперь?", {
       reply_markup: {
         keyboard: options,
-        one_time_keyboard: true, // Hide the keyboard after a choice is made
-        resize_keyboard: true // Allow the keyboard to be resized by the user
+        one_time_keyboard: true, 
+        resize_keyboard: true
       }
     });
 
     console.log('Confirmation sent to interviewer');
   }catch(err){
+    console.log(err);
+  }
+};
+
+export const changeDescription = async (ctx: any, chatId: number, newDescription: string) => {
+  try {
+    const user = await UserRepository.findOne({ where: { chat_id: chatId } });
+    if (user) {
+      user.description = newDescription;
+
+      await UserRepository.save(user); 
+      ctx.reply("Описание успешно обновлено");
+
+    } else {
+      ctx.reply("Ты еще не зарегистрировался");
+    }
+
+  } catch (err) {
     console.log(err);
   }
 };
