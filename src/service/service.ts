@@ -23,3 +23,28 @@ export const getAdmins = async() => {
   const adminUsers = await UserRepository.find({ where: { role: 'admin' } });
   return adminUsers;
 }
+
+export const sendMessagesToAdmins = async (ctx: any, user: User) => {
+  const admins = await getAdmins();
+
+  const options = [
+    [`✅${user.id}`, `🚫${user.id}`]
+  ];
+
+  const message = `👨🏻‍💻Interviewer Application:\nUsername: @${user.username}\nTimezone: GMT(${user.timezone})\nDescription: ${user.description}`;
+
+  for (const admin of admins) {
+    const adminChatId = admin.chat_id;
+
+    // Send the message to admins
+    await ctx.telegram.sendMessage(adminChatId,message , {
+      reply_markup: {
+        keyboard: options,
+        one_time_keyboard: true, // Hide the keyboard after a choice is made
+        resize_keyboard: true // Allow the keyboard to be resized by the user
+      }
+    });
+  }
+
+  console.log('Messages and keyboard sent to all admins.');
+};
