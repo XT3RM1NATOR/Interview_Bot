@@ -125,3 +125,31 @@ export const changeDescription = async (ctx: any, chatId: number, newDescription
     console.log(err);
   }
 };
+
+export const deleteAccount = async (ctx: any, chatId: number) => {
+  try {
+    const userToRemove = await UserRepository.find({ where: { chat_id: chatId } });
+
+    if (userToRemove.length > 0) {
+      await UserRepository.remove(userToRemove);
+
+      ctx.session ??= { 
+        role: "",
+        adminStage: false,
+        timezone: "",
+        description: "",
+        gmtStage: false,
+        descriptionStage: false,
+        interviewer:false,
+        newDescriptionStage: false
+       }; //привожу сессию в изначальный формат
+
+      ctx.reply("Ваш аккаунт удален");
+    } else {
+      ctx.reply("У вас еще нет аккаунта");
+    }
+  } catch (error) {
+    console.error("Error deleting account:", error);
+    ctx.reply("Произошла ошибка при удалении аккаунта");
+  }
+};
