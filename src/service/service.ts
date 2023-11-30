@@ -37,14 +37,48 @@ export const sendMessagesToAdmins = async (ctx: any, user: User) => {
     const adminChatId = admin.chat_id;
 
     // Send the message to admins
-    await ctx.telegram.sendMessage(adminChatId,message , {
+    await ctx.telegram.sendMessage(adminChatId, message, {
       reply_markup: {
         keyboard: options,
-        one_time_keyboard: true, // Hide the keyboard after a choice is made
-        resize_keyboard: true // Allow the keyboard to be resized by the user
+        one_time_keyboard: true, 
+        resize_keyboard: true
       }
     });
   }
 
-  console.log('Messages and keyboard sent to all admins.');
+  console.log('Messages sent to all admins.');
+};
+
+export const Confirmation = async (ctx: any, chat_id: number) => {
+
+  const options = [
+    [`Сделать план на неделю`, `Проверить занятые слоты`]
+  ];
+    // Send the message to admins
+  await ctx.telegram.sendMessage(chat_id, "Вы были одобрены! Что теперь?", {
+    reply_markup: {
+      keyboard: options,
+      one_time_keyboard: true, // Hide the keyboard after a choice is made
+      resize_keyboard: true // Allow the keyboard to be resized by the user
+    }
+  });
+
+  console.log('Confirmation sent to interviewer');
+};
+
+export const Rejection = async (ctx: any, chat_id: number) => {
+
+  const options = [
+    [`Зарег. как собеседуемый`]
+  ];
+    // Send the message to admins
+  await ctx.telegram.sendMessage(chat_id, "Вы не были одобрены... Что теперь?", {
+    reply_markup: {
+      keyboard: options,
+      one_time_keyboard: true, // Hide the keyboard after a choice is made
+      resize_keyboard: true // Allow the keyboard to be resized by the user
+    }
+  });
+
+  console.log('Confirmation sent to interviewer');
 };
