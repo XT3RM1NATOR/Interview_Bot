@@ -104,22 +104,29 @@ bot.on('text', async (ctx) => {
     }
     
   } else if(ctx.session?.descriptionStage) {
-    ctx.session.description = ctx.message.text
+    ctx.session.description = ctx.message.text;
+    ctx.session.descriptionStage = false;
 
-    const username: string = ctx.from?.username || "Default"
+    const username: string = ctx.from?.username || "Default";
     const chat_id = ctx.chat.id;
     const timezone = ctx.session.timezone;
     const info = ctx.session.description;
 
     if(ctx.session.interviewer){
       const user = await addUserToDatabase(username, "interviewer", chat_id, timezone, info, false);
-      ctx.reply("Ожидайте ответа админа");
-      await sendMessagesToAdmins(ctx, user);
+      if(!user){
+        ctx.reply("Регистрация не вышла");
+      } else{
+        ctx.reply("Ожидайте ответа админа");
+        await sendMessagesToAdmins(ctx, user);
+      }
       
     } else {
-      ctx.reply("Ты успешно зарегестрировался")
+      ctx.reply("Ты успешно зарегестрировался");
       await addUserToDatabase(username, "interviewee", chat_id, timezone, info, true);
     }
+  } else {
+    ctx.reply("Команда пока не распознана");
   }
 });
 
