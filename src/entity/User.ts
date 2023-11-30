@@ -13,4 +13,13 @@ export class User {
 
     @Column()
     timezone?: string
+
+    @Column()
+    approved?:boolean
+
+    @Column()
+    chat_id!: number
+
+    @Column()
+    description?: string
 }
