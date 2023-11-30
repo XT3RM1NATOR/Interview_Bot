@@ -12,5 +12,5 @@ export class User {
     role!: string
 
     @Column()
-    timezone!: string
+    timezone?: string
 }
