@@ -5,7 +5,7 @@ import { ScheduledInterview } from "./entity/ScheduledInterview";
 import { User } from "./entity/User";
 
 
-export const AppDataSource = new DataSource({
+const AppDataSource = new DataSource({
   type: "mysql",
   host: "localhost",
   port: 3306,
@@ -14,3 +14,11 @@ export const AppDataSource = new DataSource({
   database: "node_ru",
   entities: [User, ChatList, InterviewerSlot, ScheduledInterview]
 })
+
+AppDataSource.initialize()
+  .then(async () => {
+    console.log("Connection initialized with database...");
+  })
+  .catch((error) => console.log(error));
+
+export default AppDataSource;

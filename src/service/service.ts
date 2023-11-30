@@ -3,9 +3,9 @@ import UserRepository from "../repository/UserRepository";
 
 export const addUserToDatabase = async(username: string, role: string, timezone?: string) => {
   const newUser = new User();
-  newUser.username = username || '';
+  newUser.username = username;
   newUser.role = role;
   newUser.timezone = timezone || 'Not Specified';
-  
+  console.log(newUser);
   return await UserRepository.save(newUser);
 }
