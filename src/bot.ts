@@ -1,8 +1,6 @@
 import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
-import { adminHandler } from './handlers/adminHandler';
-import { intervieweeHandler } from './handlers/intervieweeHandler';
-import { interviewerHandler } from './handlers/interviewerHandler';
+import { adminHandler, intervieweeHandler, interviewerHandler } from './handlers/handler';
 import UserRepository from './repository/UserRepository';
 import { Confirmation, Rejection, addUserToDatabase, changeDescription, deleteAccount, isValidGMTFormat, sendMessagesToAdmins } from './service/service';
 import { deleteSessionById, saveNewSession, updateSessionAdminStage, updateSessionDescription, updateSessionDescriptionStage, updateSessionGmtStage, updateSessionNewDescriptionStage, updateSessionRole, updateSessionTimezone, updateSessionsForUser } from './service/sessionService';
