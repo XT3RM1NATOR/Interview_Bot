@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/bot.js"
+    "start": "ts-node src/bot.ts"
   },
   "author": "",
   "license": "ISC",

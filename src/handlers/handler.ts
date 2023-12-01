@@ -28,7 +28,7 @@ export const registrationHandler = async (ctx: any) => {
     ctx.reply("Сервер был перезагружен повторите сообщение");
     await updateSessionsForUser(ctx);
   } else if (ctx.session?.adminStage) {
-    if (ctx.message.text === "123") {
+    if (ctx.message.text === process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD) {
       ctx.session.adminStage = false;
       ctx.session.role = 'admin';
       await updateSessionAdminStage(ctx.session.id, false);

@@ -4,7 +4,7 @@ import { MyContext } from './config/session-config';
 import { deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
 import { adminHandler, approveHandler, intervieweeHandler, interviewerHandler, registrationHandler } from './handlers/handler';
 
-dotenv.config({ path: '../.env' });
+dotenv.config();
 
 const bot = new Telegraf<MyContext>("6961764510:AAG9nxdNlrCTN1bIsjiC53PqXoy4-q5YPEc");
 
