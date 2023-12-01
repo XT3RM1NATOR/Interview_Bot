@@ -1,6 +1,6 @@
-import AppDataSource from "../data-sourse"
-import { ScheduledInterview } from "../entity/ScheduledInterview"
+import AppDataSource from "../config/mysql-config";
+import { ScheduledInterview } from "../entity/ScheduledInterview";
 
-const ScheduledInterviewRepository = AppDataSource.getRepository(ScheduledInterview)
+const ScheduledInterviewRepository = AppDataSource.getRepository(ScheduledInterview);
 
-export default ScheduledInterviewRepository
+export default ScheduledInterviewRepository;

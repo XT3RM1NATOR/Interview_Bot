@@ -1,4 +1,4 @@
-import AppDataSource from "../data-sourse";
+import AppDataSource from "../config/mysql-config";
 import { Session } from "../entity/Session";
 
 const SessionRepository = AppDataSource.getRepository(Session);

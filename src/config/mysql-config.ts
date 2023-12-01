@@ -1,9 +1,9 @@
 import { DataSource } from "typeorm";
-import { ChatList } from "./entity/ChatList";
-import { InterviewerSlot } from "./entity/InterviewerSlot";
-import { ScheduledInterview } from "./entity/ScheduledInterview";
-import { Session } from "./entity/Session";
-import { User } from "./entity/User";
+import { ChatList } from "../entity/ChatList";
+import { InterviewerSlot } from "../entity/InterviewerSlot";
+import { ScheduledInterview } from "../entity/ScheduledInterview";
+import { Session } from "../entity/Session";
+import { User } from "../entity/User";
 
 
 const AppDataSource = new DataSource({

@@ -1,6 +1,6 @@
-import AppDataSource from "../data-sourse"
-import { InterviewerSlot } from "../entity/InterviewerSlot"
+import AppDataSource from "../config/mysql-config";
+import { InterviewerSlot } from "../entity/InterviewerSlot";
 
-const InterviewerSlotRepository = AppDataSource.getRepository(InterviewerSlot)
+const InterviewerSlotRepository = AppDataSource.getRepository(InterviewerSlot);
 
-export default InterviewerSlotRepository
+export default InterviewerSlotRepository;
