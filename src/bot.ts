@@ -10,6 +10,7 @@ import { saveNewSession, updateSessionsForAllUsers } from './service/sessionServ
 dotenv.config({ path: '../.env' });
 
 interface SessionData {
+  id: number;
   role: string;
   adminStage: boolean;
   descriptionStage: boolean
@@ -31,19 +32,22 @@ const bot = new Telegraf<MyContext>("6961764510:AAG9nxdNlrCTN1bIsjiC53PqXoy4-q5Y
 bot.use(session());
 
 bot.command('start', async (ctx) => {
-  ctx.session ??= { 
-    role: "",
-    adminStage: false,
-    timezone: "",
-    description: "",
-    gmtStage: false,
-    descriptionStage: false,
-    interviewer:false,
-    newDescriptionStage: false,
-    chat_id: ctx.chat.id
-   };
-
-  await saveNewSession(ctx, ctx.chat.id);
+  const session = await saveNewSession(ctx, ctx.chat.id);
+  console.log(session);
+  if(session){
+    ctx.session ??= { 
+      id: 123,
+      role: "",
+      adminStage: false,
+      timezone: "",
+      description: "",
+      gmtStage: false,
+      descriptionStage: false,
+      interviewer:false,
+      newDescriptionStage: false,
+      chat_id: ctx.chat.id
+     };
+  }
   
   const options = [
     ['Admin', 'Interviewer', 'Interviewee']

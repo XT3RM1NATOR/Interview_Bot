@@ -1,8 +1,8 @@
-import { Session } from "inspector";
 import { DataSource } from "typeorm";
 import { ChatList } from "./entity/ChatList";
 import { InterviewerSlot } from "./entity/InterviewerSlot";
 import { ScheduledInterview } from "./entity/ScheduledInterview";
+import { Session } from "./entity/Session";
 import { User } from "./entity/User";
 
 

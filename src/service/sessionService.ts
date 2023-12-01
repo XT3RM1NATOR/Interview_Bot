@@ -16,41 +16,37 @@ export const updateSessionsForAllUsers = async (bot: any) => {
 };
 
 export const saveNewSession = async (ctx: any, chat_id: number) => {
-  try {
 
-    const existingSession = await sessionRepository.findOne({ where: { chat_id: chat_id } });
+  const existingSession = await sessionRepository.findOne({ where: { chat_id: chat_id } });
 
-    if (existingSession) {
-      // Update the existing session with new values
-      existingSession.role = "";
-      existingSession.adminStage = false;
-      existingSession.timezone = "";
-      existingSession.description = "";
-      existingSession.gmtStage = false;
-      existingSession.descriptionStage = false;
-      existingSession.interviewer = false;
-      existingSession.newDescriptionStage = false;
+  if (existingSession) {
+    // Update the existing session with new values
+    existingSession.role = "";
+    existingSession.adminStage = false;
+    existingSession.timezone = "";
+    existingSession.description = "";
+    existingSession.gmtStage = false;
+    existingSession.descriptionStage = false;
+    existingSession.interviewer = false;
+    existingSession.newDescriptionStage = false;
 
-      await sessionRepository.save(existingSession);
-      console.log("Existing session updated successfully!");
-    } else {
-      // Create a new session if the chat_id doesn't exist
-      const newSession = sessionRepository.create({
-        role: "",
-        adminStage: false,
-        timezone: "",
-        description: "",
-        gmtStage: false,
-        descriptionStage: false,
-        interviewer: false,
-        newDescriptionStage: false,
-        chat_id: chat_id
-      });
+    await sessionRepository.save(existingSession);
+    console.log("Existing session updated successfully!");
+  } else {
+    // Create a new session if the chat_id doesn't exist
+    const newSession = sessionRepository.create({
+      role: "",
+      adminStage: false,
+      timezone: "",
+      description: "",
+      gmtStage: false,
+      descriptionStage: false,
+      interviewer: false,
+      newDescriptionStage: false,
+      chat_id: chat_id
+    });
+    console.log("New session saved successfully!");
 
-      await sessionRepository.save(newSession);
-      console.log("New session saved successfully!");
-    }
-  } catch (err) {
-    console.log(err);
+    return await sessionRepository.save(newSession);
   }
 };
