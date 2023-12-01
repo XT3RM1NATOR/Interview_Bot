@@ -187,6 +187,21 @@ export const updateSessionNewDescriptionStage = async (id: number, isNewDescript
   }
 };
 
+export const deleteSessionById = async (id: number) => {
+  try {
+    const sessionToDelete = await sessionRepository.findOne({ where: { id: id } });
+
+    if (sessionToDelete) {
+      await sessionRepository.remove(sessionToDelete);
+      console.log("Session deleted successfully!");
+    } else {
+      console.log("Session not found.");
+    }
+  } catch (error) {
+    console.error("Error deleting session:", error);
+  }
+};
+
 
 
 

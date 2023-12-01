@@ -5,9 +5,11 @@ import { intervieweeHandler } from './handlers/intervieweeHandler';
 import { interviewerHandler } from './handlers/interviewerHandler';
 import UserRepository from './repository/UserRepository';
 import { Confirmation, Rejection, addUserToDatabase, changeDescription, deleteAccount, isValidGMTFormat, sendMessagesToAdmins } from './service/service';
-import { saveNewSession, updateSessionsForAllUsers } from './service/sessionService';
+import { deleteSessionById, saveNewSession, updateSessionAdminStage, updateSessionDescription, updateSessionDescriptionStage, updateSessionGmtStage, updateSessionNewDescriptionStage, updateSessionRole, updateSessionTimezone, updateSessionsForAllUsers } from './service/sessionService';
 
 dotenv.config({ path: '../.env' });
+
+
 
 interface SessionData {
   id: number;
@@ -30,6 +32,13 @@ interface MyContext extends Context {
 const bot = new Telegraf<MyContext>("6961764510:AAG9nxdNlrCTN1bIsjiC53PqXoy4-q5YPEc");
 
 bot.use(session());
+
+bot.launch().then(async () => {
+  await updateSessionsForAllUsers(bot);
+  console.log('Bot started');
+}).catch((err) => {
+  console.error('Error starting bot', err);
+});
 
 bot.command('start', async (ctx) => {
   const session = await saveNewSession(ctx, ctx.chat.id);
@@ -63,14 +72,15 @@ bot.command('start', async (ctx) => {
 });
 
 bot.command('newdescription', async (ctx) => {
-  if(ctx.session) { ctx.session.newDescriptionStage = true; ctx.reply("Кидай новое описание"); }
+  if(ctx.session) { ctx.session.newDescriptionStage = true; ctx.reply("Кидай новое описание");  await updateSessionNewDescriptionStage(ctx.session.id, true);}
   else ctx.reply("Для начала нажми /start")
 });
 
-bot.command('deleteaccount', (ctx) => {
+bot.command('deleteaccount', async (ctx) => {
   const chatId = ctx.message.chat.id;
-  deleteAccount(ctx, chatId);
-})
+  if(ctx.session?.id) await deleteSessionById(ctx.session.id);
+  await deleteAccount(ctx, chatId);
+});
 
 bot.hears(/^✅|^🚫/, async (ctx) => {
   if (ctx.session?.role === "admin") {
@@ -103,6 +113,8 @@ bot.on('text', async (ctx) => {
     if(ctx.message.text === "123"){
       ctx.session.adminStage = false;
       ctx.session.role = 'admin';
+      await updateSessionAdminStage(ctx.session.id, false);
+      await updateSessionRole(ctx.session.id, 'admin');
 
       const username: string = ctx.from?.username || "Default"
       const chat_id = ctx.chat.id;
@@ -119,6 +131,11 @@ bot.on('text', async (ctx) => {
       ctx.session.gmtStage = false;
       ctx.session.timezone = ctx.message.text;
       ctx.session.descriptionStage = true;
+
+      await updateSessionGmtStage(ctx.session.id, false);
+      await updateSessionTimezone(ctx.session.id, ctx.message.text);
+      await updateSessionDescriptionStage(ctx.session.id, true);
+
       ctx.reply("Введи краткое описание о себе для общей информации чем занимался и т д");
     } else {
       ctx.reply("Введи время в корректной форме");
@@ -127,6 +144,9 @@ bot.on('text', async (ctx) => {
   } else if(ctx.session?.descriptionStage) {
     ctx.session.description = ctx.message.text;
     ctx.session.descriptionStage = false;
+
+    await updateSessionDescription(ctx.session.id, ctx.message.text);
+    await updateSessionDescriptionStage(ctx.session.id, false);
 
     const username: string = ctx.from?.username || "Default";
     const chat_id = ctx.chat.id;
@@ -150,9 +170,11 @@ bot.on('text', async (ctx) => {
     const chatId = ctx.message.chat.id;
     const newDescription = ctx.message.text;
     ctx.session.newDescriptionStage = false;
+
+    await updateSessionNewDescriptionStage(ctx.session.id, false);
     await changeDescription(ctx, chatId, newDescription);
   }else {
-    ctx.reply("Команда пока не распознана");
+    ctx.reply("Команда пока не распознана\n" + "А тут твоя сессия: "ctx.session);
   }
 });
 
@@ -160,10 +182,3 @@ bot.catch((err: any, ctx: Context) => {
   console.error(`Error for ${ctx.updateType}`, err);
 });
 
-bot.launch().then(() => {
-  updateSessionsForAllUsers(bot);
-
-  console.log('Bot started');
-}).catch((err) => {
-  console.error('Error starting bot', err);
-});
