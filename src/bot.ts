@@ -5,6 +5,7 @@ import { intervieweeHandler } from './handlers/intervieweeHandler';
 import { interviewerHandler } from './handlers/interviewerHandler';
 import UserRepository from './repository/UserRepository';
 import { Confirmation, Rejection, addUserToDatabase, changeDescription, deleteAccount, isValidGMTFormat, sendMessagesToAdmins } from './service/service';
+import { saveNewSession } from './service/sessionService';
 
 dotenv.config({ path: '../.env' });
 
@@ -17,6 +18,7 @@ interface SessionData {
   description: string;
   interviewer: boolean;
   newDescriptionStage: boolean;
+  chat_id: number;
 }
 
 // Define your own context type
@@ -28,7 +30,7 @@ const bot = new Telegraf<MyContext>("6961764510:AAG9nxdNlrCTN1bIsjiC53PqXoy4-q5Y
 
 bot.use(session());
 
-bot.command('start', (ctx) => {
+bot.command('start', async (ctx) => {
   ctx.session ??= { 
     role: "",
     adminStage: false,
@@ -37,9 +39,12 @@ bot.command('start', (ctx) => {
     gmtStage: false,
     descriptionStage: false,
     interviewer:false,
-    newDescriptionStage: false
+    newDescriptionStage: false,
+    chat_id: ctx.chat.id
    };
 
+  await saveNewSession(ctx, ctx.chat.id);
+  
   const options = [
     ['Admin', 'Interviewer', 'Interviewee']
   ];
@@ -152,6 +157,7 @@ bot.catch((err: any, ctx: Context) => {
 });
 
 bot.launch().then(() => {
+
   console.log('Bot started');
 }).catch((err) => {
   console.error('Error starting bot', err);
