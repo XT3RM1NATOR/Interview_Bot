@@ -5,7 +5,7 @@ import { deleteSessionById, saveNewSession, updateSessionNewDescriptionStage } f
 dotenv.config();
 
 export const startCommand = async (ctx: any) => {
-  console.log(process.env.BOT_TOKEN)
+
   const user = await checkUser(ctx);
 
   if(user) {

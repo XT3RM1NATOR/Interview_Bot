@@ -6,7 +6,7 @@ import { adminHandler, approveHandler, intervieweeHandler, interviewerHandler, r
 
 dotenv.config();
 
-const bot = new Telegraf<MyContext>("6961764510:AAG9nxdNlrCTN1bIsjiC53PqXoy4-q5YPEc");
+const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN!);
 
 bot.use(session());
 
