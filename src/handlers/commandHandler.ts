@@ -43,10 +43,10 @@ export const startCommand = async (ctx: any) => {
     }
     
     const options = [
-      ['Admin', 'Interviewer', 'Interviewee']
+      ['Админ', 'Интервьюер', 'Собеседуемый']
     ];
 
-    ctx.reply('Please select an option:', {
+    ctx.reply('Выбери подходящий вариант:', {
       reply_markup: {
         keyboard: options,
         one_time_keyboard: true,

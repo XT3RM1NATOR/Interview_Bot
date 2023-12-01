@@ -6,7 +6,7 @@ import { updateSessionAdminStage, updateSessionDescription, updateSessionDescrip
 export const adminHandler = async (ctx: any) => {
   ctx.session.adminStage = true;
   await updateSessionAdminStage(ctx.session.id, true);
-  ctx.reply('You chose Admin. Please enter the password:');
+  ctx.reply('Ты выбрал админа, введи пароль:');
 }
 
 export const interviewerHandler = async(ctx: any) => {

@@ -14,10 +14,10 @@ bot.command('start', startCommand);
 bot.command('deleteaccount', deleteAccountCommand);
 bot.command('newdescription', newDescriptionCommand);
 
-bot.hears('Interviewer', interviewerHandler);
-bot.hears('Interviewee', intervieweeHandler);
+bot.hears('Интервьюер', interviewerHandler);
+bot.hears('Собеседуемый', intervieweeHandler);
 bot.hears(/^✅|^🚫/, approveHandler);
-bot.hears('Admin', adminHandler);
+bot.hears('Админ', adminHandler);
 
 bot.hears(/.*/, registrationHandler);
 
