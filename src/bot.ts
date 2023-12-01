@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
 import { MyContext } from './config/session-config';
 import { deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
-import { adminHandler, approveHandler, intervieweeHandler, interviewerHandler, registrationHandler } from './handlers/handler';
+import { adminHandler, approveHandler, intervieweeHandler, interviewerHandler, registrationHandler } from './handlers/responseHandler';
 
 dotenv.config();
 

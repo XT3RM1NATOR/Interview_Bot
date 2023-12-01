@@ -1,3 +1,4 @@
+import { logAction } from '../logger/logger';
 import UserRepository from '../repository/UserRepository';
 import { Confirmation, Rejection, addUserToDatabase, changeDescription, isValidGMTFormat, sendMessagesToAdmins } from '../service/registrationService';
 import { updateSessionAdminStage, updateSessionDescription, updateSessionDescriptionStage, updateSessionGmtStage, updateSessionInterviewer, updateSessionNewDescriptionStage, updateSessionRole, updateSessionTimezone, updateSessionsForUser } from '../service/sessionService';
@@ -75,6 +76,7 @@ export const registrationHandler = async (ctx: any) => {
         ctx.reply("Регистрация не удалась");
       } else {
         ctx.reply("Ожидайте ответа админа");
+        logAction(ctx.from?.username || "Default", "Has sent an application for the interviewer role")
         await sendMessagesToAdmins(ctx, user);
       }
     } else {

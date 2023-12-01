@@ -26,6 +26,7 @@
     "telegraf": "^4.15.0",
     "telegraf-session-local": "^2.1.1",
     "typegram": "^5.2.0",
-    "typeorm": "^0.3.17"
+    "typeorm": "^0.3.17",
+    "winston": "^3.11.0"
   }
 }
