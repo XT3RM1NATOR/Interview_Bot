@@ -18,6 +18,7 @@ bot.hears('Admin', adminHandler);
 bot.hears('Interviewer', interviewerHandler);
 bot.hears('Interviewee', intervieweeHandler);
 bot.hears(/^✅|^🚫/, processEmojiMessages);
+
 bot.hears(/.*/, registrationHandler);
 
 bot.catch((err: any, ctx: Context) => {

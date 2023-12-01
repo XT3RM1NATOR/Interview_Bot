@@ -1,35 +1,56 @@
-import { deleteAccount } from '../service/registrationService';
+import { checkUser, deleteAccount } from '../service/registrationService';
 import { deleteSessionById, saveNewSession, updateSessionNewDescriptionStage } from '../service/sessionService';
 
 export const startCommand = async (ctx: any) => {
-  const session = await saveNewSession(ctx, ctx.chat.id);
 
-  if (session) {
-    ctx.session ??= { 
-      id: session.id,
-      role: "",
-      adminStage: false,
-      timezone: "",
-      description: "",
-      gmtStage: false,
-      descriptionStage: false,
-      interviewer: false,
-      newDescriptionStage: false,
-      chat_id: ctx.chat.id
-    };
-  }
-  
-  const options = [
-    ['Admin', 'Interviewer', 'Interviewee']
-  ];
+  const user = await checkUser(ctx);
 
-  ctx.reply('Please select an option:', {
-    reply_markup: {
-      keyboard: options,
-      one_time_keyboard: true,
-      resize_keyboard: true
+  if(user) {
+    if(user.role === 'interviewee'){
+      ctx.reply("poop")
+    }else {
+      const options = [
+        ['Сделать план на неделю', 'Проверить занятые слоты']
+      ];
+
+      ctx.reply('Вы уже зарегестрированы что бы удалить аккаунт нажмите /deleteaccount', {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
     }
-  });
+  }else{
+    const session = await saveNewSession(ctx, ctx.chat.id);
+    
+    if (session) {
+      ctx.session ??= { 
+        id: session.id,
+        role: "",
+        adminStage: false,
+        timezone: "",
+        description: "",
+        gmtStage: false,
+        descriptionStage: false,
+        interviewer: false,
+        newDescriptionStage: false,
+        chat_id: ctx.chat.id
+      };
+    }
+    
+    const options = [
+      ['Admin', 'Interviewer', 'Interviewee']
+    ];
+
+    ctx.reply('Please select an option:', {
+      reply_markup: {
+        keyboard: options,
+        one_time_keyboard: true,
+        resize_keyboard: true
+      }
+    });
+  }
 };
 
 export const newDescriptionCommand = async (ctx: any) => {

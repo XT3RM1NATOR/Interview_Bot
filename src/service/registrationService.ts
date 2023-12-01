@@ -21,13 +21,11 @@ export const addUserToDatabase = async(username: string, role: string, chat_id: 
 
 export const isValidGMTFormat = (text: string): boolean => {
   const gmtRegex = /^(-?(?:1[0-2]|[0-9])(?:\.30)?|-12)$/;
-
   return gmtRegex.test(text.trim());
 };
 
 export const getAdmins = async() => {
   try{
-
     const adminUsers = await UserRepository.find({ where: { role: 'admin' } });
     return adminUsers;
   } catch(err) {
@@ -153,3 +151,8 @@ export const deleteAccount = async (ctx: any, chatId: number) => {
     ctx.reply("Произошла ошибка при удалении аккаунта");
   }
 };
+
+export const checkUser = async(ctx: any) => {
+  const user = await UserRepository.findOne( { where: { chat_id: ctx.chat.id } } );
+  return user;
+}
