@@ -5,7 +5,7 @@ import { intervieweeHandler } from './handlers/intervieweeHandler';
 import { interviewerHandler } from './handlers/interviewerHandler';
 import UserRepository from './repository/UserRepository';
 import { Confirmation, Rejection, addUserToDatabase, changeDescription, deleteAccount, isValidGMTFormat, sendMessagesToAdmins } from './service/service';
-import { saveNewSession } from './service/sessionService';
+import { saveNewSession, updateSessionsForAllUsers } from './service/sessionService';
 
 dotenv.config({ path: '../.env' });
 
@@ -157,6 +157,7 @@ bot.catch((err: any, ctx: Context) => {
 });
 
 bot.launch().then(() => {
+  updateSessionsForAllUsers(bot);
 
   console.log('Bot started');
 }).catch((err) => {
