@@ -6,7 +6,7 @@ export const updateSessionsForAllUsers = async (bot: any) => {
     const sessions = await sessionRepository.find();
 
     for (const session of sessions) {
-
+      console.log(session.chat_id);
       bot.sessionStore.sessions[session.chat_id] = session;
     }
     console.log(bot.sessionStore)

@@ -99,7 +99,7 @@ bot.hears(/^✅|^🚫/, async (ctx) => {
       ctx.reply("Юзер успешно отказан");
     }
   } else {
-    ctx.reply("Ты не авторизован для этой команды");
+    ctx.reply(`А тут твоя сессия:  ${ctx.session}`);
   }
 });
 
@@ -174,7 +174,7 @@ bot.on('text', async (ctx) => {
     await updateSessionNewDescriptionStage(ctx.session.id, false);
     await changeDescription(ctx, chatId, newDescription);
   }else {
-    ctx.reply("Команда пока не распознана\n" + "А тут твоя сессия: "ctx.session);
+    ctx.reply(`Команда пока не распознана`);
   }
 });
 
