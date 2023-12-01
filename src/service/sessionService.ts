@@ -1,16 +1,11 @@
 import sessionRepository from "../repository/SessionRepository";
 
 // Update or clear sessions for all fetched users
-export const updateSessionsForAllUsers = async (bot: any) => {
+export const updateSessionsForUser = async (ctx: any) => {
   try {
-    const sessions = await sessionRepository.find();
-
-    for (const session of sessions) {
-      console.log(session.chat_id);
-      bot.sessionStore.sessions[session.chat_id] = session;
-    }
-    console.log(bot.sessionStore)
-  } catch(err){
+    const session = sessionRepository.findOne( { where: { chat_id: ctx.chat.id } } );
+    ctx.session = session;
+  } catch (err) {
     console.log(err);
   }
 };

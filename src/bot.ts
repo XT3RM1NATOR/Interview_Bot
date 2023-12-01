@@ -5,7 +5,7 @@ import { intervieweeHandler } from './handlers/intervieweeHandler';
 import { interviewerHandler } from './handlers/interviewerHandler';
 import UserRepository from './repository/UserRepository';
 import { Confirmation, Rejection, addUserToDatabase, changeDescription, deleteAccount, isValidGMTFormat, sendMessagesToAdmins } from './service/service';
-import { deleteSessionById, saveNewSession, updateSessionAdminStage, updateSessionDescription, updateSessionDescriptionStage, updateSessionGmtStage, updateSessionNewDescriptionStage, updateSessionRole, updateSessionTimezone, updateSessionsForAllUsers } from './service/sessionService';
+import { deleteSessionById, saveNewSession, updateSessionAdminStage, updateSessionDescription, updateSessionDescriptionStage, updateSessionGmtStage, updateSessionNewDescriptionStage, updateSessionRole, updateSessionTimezone, updateSessionsForUser } from './service/sessionService';
 
 dotenv.config({ path: '../.env' });
 
@@ -32,13 +32,6 @@ interface MyContext extends Context {
 const bot = new Telegraf<MyContext>("6961764510:AAG9nxdNlrCTN1bIsjiC53PqXoy4-q5YPEc");
 
 bot.use(session());
-
-bot.launch().then(async () => {
-  await updateSessionsForAllUsers(bot);
-  console.log('Bot started');
-}).catch((err) => {
-  console.error('Error starting bot', err);
-});
 
 bot.command('start', async (ctx) => {
   const session = await saveNewSession(ctx, ctx.chat.id);
@@ -83,7 +76,10 @@ bot.command('deleteaccount', async (ctx) => {
 });
 
 bot.hears(/^✅|^🚫/, async (ctx) => {
-  if (ctx.session?.role === "admin") {
+  if(!ctx.session){
+    ctx.reply("Сервер был перезагружен повторите сообщение")
+    await updateSessionsForUser(ctx);
+  }else if (ctx.session?.role === "admin") {
     const id: number = parseInt(ctx.message.text.substring(1));
     const user = await UserRepository.findOne({ where: { id: id } });
     
@@ -108,7 +104,10 @@ bot.hears('Interviewer', interviewerHandler);
 bot.hears('Interviewee', intervieweeHandler);
 
 bot.on('text', async (ctx) => {
-  if (ctx.session?.adminStage) {
+  if(!ctx.session){
+    ctx.reply("Сервер был перезагружен повторите сообщение")
+    await updateSessionsForUser(ctx);
+  }else if (ctx.session?.adminStage) {
 
     if(ctx.message.text === "123"){
       ctx.session.adminStage = false;
@@ -181,4 +180,6 @@ bot.on('text', async (ctx) => {
 bot.catch((err: any, ctx: Context) => {
   console.error(`Error for ${ctx.updateType}`, err);
 });
+
+bot.launch();
 
