@@ -9,8 +9,6 @@ import { deleteSessionById, saveNewSession, updateSessionAdminStage, updateSessi
 
 dotenv.config({ path: '../.env' });
 
-
-
 interface SessionData {
   id: number;
   role: string;
@@ -24,7 +22,6 @@ interface SessionData {
   chat_id: number;
 }
 
-// Define your own context type
 interface MyContext extends Context {
 	session?: SessionData;
 }
@@ -79,23 +76,42 @@ bot.hears(/^✅|^🚫/, async (ctx) => {
   if(!ctx.session){
     ctx.reply("Сервер был перезагружен повторите сообщение")
     await updateSessionsForUser(ctx);
+
   }else if (ctx.session?.role === "admin") {
     const id: number = parseInt(ctx.message.text.substring(1));
     const user = await UserRepository.findOne({ where: { id: id } });
+
+    const options = [
+      [`Сделать план на неделю`, `Проверить занятые слоты`]
+    ];
     
     if (ctx.message.text.startsWith('✅') && user) {
 
+      updateSessionRole(ctx.session.id, "interviewer");
+
       user.approved = true;
       await UserRepository.save(user);
-
+      
       Confirmation(ctx, user.chat_id);
-      ctx.reply("Юзер успешно одобрен");
+      ctx.reply("Юзер успешно одобрен!", {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true, 
+          resize_keyboard: true
+        }
+      });
     } else if(ctx.message.text.startsWith('🚫') && user){
       Rejection(ctx, user.chat_id);
-      ctx.reply("Юзер успешно отказан");
+      ctx.reply("Юзер успешно отказан!", {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true, 
+          resize_keyboard: true
+        }
+      });
     }
   } else {
-    ctx.reply(`А тут твоя сессия:  ${ctx.session}`);
+    ctx.reply(`Ты не авторзован для команды`);
   }
 });
 
