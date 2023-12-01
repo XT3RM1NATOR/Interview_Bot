@@ -93,7 +93,7 @@ export const registrationHandler = async (ctx: any) => {
   }
 };
 
-export const processEmojiMessages = async (ctx: any) => {
+export const approveHandler = async (ctx: any) => {
   if (!ctx.session) {
     ctx.reply("Сервер был перезагружен повторите сообщение");
     await updateSessionsForUser(ctx);
