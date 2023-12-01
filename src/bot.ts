@@ -33,10 +33,10 @@ bot.use(session());
 
 bot.command('start', async (ctx) => {
   const session = await saveNewSession(ctx, ctx.chat.id);
-  console.log(session);
+
   if(session){
     ctx.session ??= { 
-      id: 123,
+      id: session.id,
       role: "",
       adminStage: false,
       timezone: "",
