@@ -1,5 +1,6 @@
 import { User } from "../entity/User";
 import UserRepository from "../repository/UserRepository";
+import { updateSessionRole } from "./sessionService";
 
 export const addUserToDatabase = async(username: string, role: string, chat_id: number, timezone?: string, description?: string, approved?: boolean) => {
   try {
@@ -32,37 +33,6 @@ export const getAdmins = async() => {
     console.log(err);
   }
 }
-
-export const sendMessagesToAdmins = async (ctx: any, user: User) => {
-  try{
-
-    const admins = await getAdmins();
-    const options = [
-      [`✅${user.id}`, `🚫${user.id}`]
-    ];
-
-    const message = `👨🏻‍💻Interviewer Application:\nUsername: @${user.username}\nTimezone: GMT(${user.timezone})\nDescription: ${user.description}`;
-    
-    if(admins){
-      for (const admin of admins) {
-
-        const adminChatId = admin.chat_id;
-  
-        // Send the message to admins
-        await ctx.telegram.sendMessage(adminChatId, message, {
-          reply_markup: {
-            keyboard: options,
-            one_time_keyboard: true, 
-            resize_keyboard: true
-          }
-        });
-      }
-      console.log('Messages sent to all admins.');
-    }
-  } catch(err){
-    console.log(err);
-  }
-};
 
 export const Confirmation = async (ctx: any, chat_id: number) => {
   try{
@@ -156,3 +126,51 @@ export const checkUser = async(ctx: any) => {
   const user = await UserRepository.findOne( { where: { chat_id: ctx.chat.id } } );
   return user;
 }
+
+export const callbackQueryHandler = async (ctx: any) => {
+  try {
+    const data = ctx.callbackQuery.data;
+    const userId = parseInt(data.split('_')[1]); // Extract the user ID from callback_data
+    console.log(userId);
+    if (data.startsWith('accept')) {
+      await acceptCallback(ctx, userId);
+    } else if (data.startsWith('reject')) {
+      await rejectCallback(ctx, userId);
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+// Accept callback function
+export const acceptCallback = async (ctx: any, userId: number) => {
+  try {
+    const user = await UserRepository.findOne({ where: { id: userId } });
+
+    if (user) {
+      updateSessionRole(ctx.session.id, "interviewer");
+      user.approved = true;
+      await UserRepository.save(user);
+      Confirmation(ctx, user.chat_id);
+      ctx.reply("Юзер успешно одобрен!");
+    }
+  } catch (error) {
+    console.log(error);
+    ctx.reply("Произошла ошибка при одобрении юзера.");
+  }
+};
+
+// Reject callback function
+export const rejectCallback = async (ctx: any, userId: number) => {
+  try {
+    const user = await UserRepository.findOne({ where: { id: userId } });
+
+    if (user) {
+      Rejection(ctx, user.chat_id);
+      ctx.reply("Юзер успешно отказан!");
+    }
+  } catch (error) {
+    console.log(error);
+    ctx.reply("Произошла ошибка при отказе юзера.");
+  }
+};
