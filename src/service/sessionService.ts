@@ -22,6 +22,7 @@ export const saveNewSession = async (ctx: any, chat_id: number) => {
     existingSession.timezone_minute = 0;
     existingSession.description = "";
     existingSession.interviewer = false;
+    existingSession.tg_chat_id = 0;
 
     console.log("Existing session updated successfully!");
 
@@ -35,7 +36,8 @@ export const saveNewSession = async (ctx: any, chat_id: number) => {
       timezone_minute: 0,
       description: "",
       interviewer: false,
-      chat_id: chat_id
+      chat_id: chat_id,
+      tg_chat_id: 0
     });
     console.log("New session saved successfully!");
 

@@ -9,6 +9,7 @@ interface SessionData {
   description: string;
   interviewer: boolean;
   chat_id: number;
+  tg_chat_id: number;
 }
 
 export interface MyContext extends Context {

@@ -25,4 +25,9 @@ export class Session {
 
   @Column()
   chat_id!: number;
+
+  @Column()
+  tg_chat_id!: number;
 }
+
+// tg_chat_id - {1:node.js, 2:react.js}

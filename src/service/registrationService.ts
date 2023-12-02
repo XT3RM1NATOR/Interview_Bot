@@ -111,7 +111,8 @@ export const deleteAccount = async (ctx: any, chatId: number) => {
         gmtStage: false,
         descriptionStage: false,
         interviewer:false,
-        newDescriptionStage: false
+        newDescriptionStage: false,
+        tg_chat_id: 0
        }; //привожу сессию в изначальный формат
 
       ctx.reply("Ваш аккаунт удален нажмите /start что бы начать заново");
@@ -178,8 +179,8 @@ export const rejectCallback = async (ctx: any, userId: number) => {
 };
 
 export const convertStringToNumbers = (input: string): number[] | [number, number] | undefined => {
-  const numRegex = /^-?\d+$/; 
-  const timeRegex = /^(-?\d+):(-?\d+)$/; 
+  const numRegex = /^-?\d+$/;
+  const timeRegex = /^(-?\d+):(-?\d+)$/;
 
   if (numRegex.test(input)) {
     const parsedNum = parseInt(input, 10);
