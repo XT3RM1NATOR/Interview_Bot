@@ -26,8 +26,8 @@ export const handleTimeSlotInput = (ctx: any) => {
   dayTimePairs.forEach((dayTimePair: string) => {
     const [dayOfWeek, startTime, endTime] = dayTimePair.split(/:\s|-/);
     if (dayOfWeek in daysMap) { // Check if the dayOfWeek exists in DaysMap
-      const startTimeMySQL = convertToMySQLDateFormat(daysMap, dayOfWeek as keyof DaysMap, startTime);
-      const endTimeMySQL = convertToMySQLDateFormat(daysMap, dayOfWeek as keyof DaysMap, endTime);
+      const startTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, startTime);
+      const endTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
 
       console.log(`Start Time (MySQL Format) for ${dayOfWeek}: ${startTimeMySQL}`);
       console.log(`End Time (MySQL Format) for ${dayOfWeek}: ${endTimeMySQL}`);

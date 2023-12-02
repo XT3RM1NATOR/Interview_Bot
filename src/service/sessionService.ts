@@ -87,7 +87,7 @@ export const updateSessionTimezone = async (id: number, newTimezone: string) => 
 
     if (existingSession && timezone) {
       existingSession.timezone_hour = timezone[0];
-      existingSession.timezone_minute = timezone[1];
+      existingSession.timezone_minute = timezone[1] || 0;
       await sessionRepository.save(existingSession);
       console.log("Timezone updated successfully!");
     } else {

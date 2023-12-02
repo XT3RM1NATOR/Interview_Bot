@@ -14,7 +14,7 @@ export const getTemplateForCurrentWeek = () => {
   return template;
 };
 
-export const convertToMySQLDateFormat = (daysMap: DaysMap, dayOfWeek: keyof DaysMap, time: string, offsetHours: number = 0, offsetMinutes: number = 0) => {
+export const convertToMySQLDateFormat = (ctx: any, daysMap: DaysMap, dayOfWeek: keyof DaysMap, time: string) => {
   const today = new Date();
   const currentDay = today.getDay();
   const dayDifference = (daysMap[dayOfWeek] - currentDay + 7) % 7;
@@ -23,14 +23,14 @@ export const convertToMySQLDateFormat = (daysMap: DaysMap, dayOfWeek: keyof Days
   targetDate.setDate(today.getDate() + dayDifference);
 
   const [hours, minutes] = time.split(':').map(Number);
-
+  console.log("the time\n" + ctx.session.timezone_hour + "\n" + ctx.session.timezone_minute + "\n" + ctx.session);
   // Apply the UTC time with the additional offset
   const targetUTCTime = Date.UTC(
     targetDate.getFullYear(),
     targetDate.getMonth(),
     targetDate.getDate(),
-    hours - offsetHours, // Apply the additional offset for hours
-    minutes - offsetMinutes // Apply the additional offset for minutes
+    hours - ctx.session.timezone_hour, // Apply the additional offset for hours
+    minutes - ctx.session.timezone_minute // Apply the additional offset for minutes
   );
 
   // Create a new date object from the UTC time with the offset

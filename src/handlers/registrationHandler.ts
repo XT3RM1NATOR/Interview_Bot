@@ -31,9 +31,9 @@ export const registrationHandler = async (ctx: any) => {
       await updateSessionsForUser(ctx);
       break;
 
-      case 1:
-        await case1(ctx);
-        break;
+    case 1:
+      await case1(ctx);
+      break; 
     case 2:
       await case2(ctx);
       break;

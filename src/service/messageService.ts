@@ -33,10 +33,10 @@ export const case3 = async(ctx: any) => {
       }
     });
 
-    await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, ctx.session.timezone_hour, ctx.session.timezone_hour, ctx.session.description, true);
+    await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
   }else {
     ctx.reply("Ты успешно зарегистрировался");
-    await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id,ctx.session.timezone_hour, ctx.session.timezone_hour, ctx.session.description, true);
+    await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id,ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
   }
 }
 
@@ -46,7 +46,7 @@ export const case2 = async(ctx: any) => {
 
     if(timezone){
       ctx.session.timezone_hour = timezone[0];
-      ctx.session.timezone_minute = timezone[1];
+      ctx.session.timezone_minute = timezone[1] || 0 ;
     }
 
     ctx.session.stageId = 3;
