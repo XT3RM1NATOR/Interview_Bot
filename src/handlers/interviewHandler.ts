@@ -1,21 +1,27 @@
 
 import { convertToMySQLDateFormat, getTemplateForCurrentWeek, saveTimeIntervals } from "../service/interviewService";
+import { checkServer } from "../service/messageService";
 import { updateSessionStage } from "../service/sessionService";
 import { DaysMap } from "../type/type";
 
 export const planHandler = async (ctx:any) => {
-  const instructions = "Кидай в определенном формате ниже шаблон на эту неделю: (Время только ровное по 30 минут промежуткам, например 15:00 или 14:30)";
-  ctx.reply(instructions);
+  const check = await checkServer(ctx);
+  if(check){
+    const instructions = "Кидай в определенном формате ниже шаблон на эту неделю: (Время только ровное по 30 минут промежуткам, например 15:00 или 14:30)";
+    ctx.reply(instructions);
 
-  ctx.session.stageId = 5;
-  await updateSessionStage(ctx.session.id, 5);
+    ctx.session.stageId = 5;
+    await updateSessionStage(ctx.session.id, 5);
 
-  const templateForWeek = getTemplateForCurrentWeek();
-  ctx.reply(`${templateForWeek}`);
+    const templateForWeek = getTemplateForCurrentWeek();
+    ctx.reply(`${templateForWeek}`);
+  }
 }
 
 export const handleTimeSlotInput = async (ctx: any) => {
-  if(ctx.session.stageId === 5){
+  const check = await checkServer(ctx);
+  
+  if(ctx.session.stageId === 5 && check){
     ctx.session.stageId = 0;
     await updateSessionStage(ctx.session.id, 0);
 

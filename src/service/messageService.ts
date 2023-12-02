@@ -1,7 +1,7 @@
 import { sendMessagesToAdmins } from "../handlers/registrationHandler";
 import { logAction } from '../logger/logger';
 import { addUserToDatabase, convertStringToNumbers, isValidGMTFormat } from '../service/registrationService';
-import { updateSessionDescription, updateSessionRole, updateSessionStage, updateSessionTimezone } from '../service/sessionService';
+import { updateSessionDescription, updateSessionRole, updateSessionStage, updateSessionTimezone, updateSessionsForUser } from '../service/sessionService';
 
 export const case3 = async(ctx: any) => {
   ctx.session.description = ctx.message.text;
@@ -38,7 +38,7 @@ export const case3 = async(ctx: any) => {
     ctx.reply("Ты успешно зарегистрировался");
     await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id,ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
   }
-}
+};
 
 export const case2 = async(ctx: any) => {
   if (isValidGMTFormat(ctx.message.text)) {
@@ -58,7 +58,7 @@ export const case2 = async(ctx: any) => {
   } else {
     ctx.reply("Введи время в корректной форме");
   }
-}
+};
 
 export const case1 = async(ctx: any) => {
   if (ctx.message.text === process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD) {
@@ -71,4 +71,13 @@ export const case1 = async(ctx: any) => {
   } else {
     ctx.reply('Введи правильный пароль');
   }
-}
+};
+
+export const checkServer = async (ctx: any) => {
+  if(ctx.session === undefined){
+    ctx.reply("Сервер был перезагружен повторите сообщение");
+    await updateSessionsForUser(ctx);
+    return false;
+  }
+  return true
+};

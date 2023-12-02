@@ -1,7 +1,7 @@
 import { User } from "../entity/User";
-import { case1, case2, case3 } from "../service/messageService";
+import { case1, case2, case3, checkServer } from "../service/messageService";
 import { changeDescription, getAdmins } from '../service/registrationService';
-import { updateSessionInterviewer, updateSessionStage, updateSessionsForUser } from '../service/sessionService';
+import { updateSessionInterviewer, updateSessionStage } from '../service/sessionService';
 
 
 export const adminHandler = async (ctx: any) => {
@@ -27,10 +27,8 @@ export const intervieweeHandler = async (ctx: any) => {
 export const registrationHandler = async (ctx: any) => {
   switch (ctx.session?.stageId) {
     case undefined:
-      ctx.reply("Сервер был перезагружен повторите сообщение");
-      await updateSessionsForUser(ctx);
+      await checkServer(ctx);
       break;
-
     case 1:
       await case1(ctx);
       break; 
