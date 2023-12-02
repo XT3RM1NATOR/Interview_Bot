@@ -6,10 +6,7 @@ export class InterviewerSlot {
     id!: number
 
     @Column()
-    user_id!: number;
-
-    @Column() 
-    day_of_week!: string;
+    interviewer_id!: number;
 
     @Column()
     start_time!: string;

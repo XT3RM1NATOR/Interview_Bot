@@ -1,3 +1,4 @@
+
 import { convertToMySQLDateFormat, getTemplateForCurrentWeek } from "../service/interviewService";
 import { DaysMap } from "../type/type";
 
@@ -28,9 +29,7 @@ export const handleTimeSlotInput = (ctx: any) => {
     if (dayOfWeek in daysMap) { // Check if the dayOfWeek exists in DaysMap
       const startTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, startTime);
       const endTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
-
-      console.log(`Start Time (MySQL Format) for ${dayOfWeek}: ${startTimeMySQL}`);
-      console.log(`End Time (MySQL Format) for ${dayOfWeek}: ${endTimeMySQL}`);
+      //await saveTimeIntervals(ctx, Date(startTimeMySQL), endTimeMySQL);
     } else {
       console.log(`Invalid day: ${dayOfWeek}`);
     }
