@@ -82,8 +82,7 @@ export const sendMessagesToAdmins = async (ctx: any, user: User) => {
   }
 };
 
-export const startAction= async (ctx: any) => {
-
+export const startAction = async (ctx: any) => {
   const user = await checkUser(ctx);
 
   if(user) {
@@ -103,9 +102,9 @@ export const startAction= async (ctx: any) => {
       });
     }
   }else{
+    const tg_chat_id = ctx.match[0] == "accept_nodejs" ? 1 : ctx.match[0] == "accept_react" ? 2 : 0;
+    const session = await saveNewSession(ctx, ctx.chat.id, tg_chat_id);
 
-    const session = await saveNewSession(ctx, ctx.chat.id);
-    
     if (session) {
       ctx.session ??= {
         id: session.id,
@@ -116,7 +115,7 @@ export const startAction= async (ctx: any) => {
         description: "",
         interviewer: false,
         chat_id: ctx.chat.id,
-        tg_chat_id: 0
+        tg_chat_id: tg_chat_id
       };
     }
     

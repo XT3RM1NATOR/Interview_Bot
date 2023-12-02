@@ -3,7 +3,7 @@ import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
 import { updateSessionRole } from "./sessionService";
 
-export const addUserToDatabase = async(username: string, role: string, chat_id: number, timezone_hour?: number, timezone_minute?: number, description?: string, approved?: boolean) => {
+export const addUserToDatabase = async(username: string, role: string, chat_id: number, tg_chat_id: number,  timezone_hour?: number, timezone_minute?: number, description?: string, approved?: boolean) => {
   try {
     const newUser = new User();
 
@@ -14,6 +14,7 @@ export const addUserToDatabase = async(username: string, role: string, chat_id: 
     newUser.chat_id = chat_id;
     newUser.description = description;
     newUser.approved = approved;
+    newUser.tg_chat_id = tg_chat_id;
 
     return await UserRepository.save(newUser);
   } catch (err) {

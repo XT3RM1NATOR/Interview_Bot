@@ -21,12 +21,11 @@ bot.hears('Интервьюер', interviewerHandler);
 bot.hears('Собеседуемый', intervieweeHandler);
 bot.hears('Админ', adminHandler);
 bot.hears('Сделать план на неделю', planHandler);
+
+bot.action("accept_nodejs" || "accept_react", startAction);
 bot.hears(process.env.TIME_SLOT_RGX!, handleTimeSlotInput);
 
-bot.action(process.env.START_CALLBACK_RGX!, startAction);
-
 bot.hears(/.*/, registrationHandler);
-
 
 bot.on('callback_query', async (ctx) => {
   await callbackQueryHandler(ctx);

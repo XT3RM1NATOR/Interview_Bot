@@ -11,7 +11,7 @@ export const case3 = async(ctx: any) => {
   await updateSessionStage(ctx.session.id, 0);
 
   if (ctx.session.interviewer) {
-    const user = await addUserToDatabase(ctx.from?.username || "Default", "interviewer", ctx.chat.id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, false);
+    const user = await addUserToDatabase(ctx.from?.username || "Default", "interviewer", ctx.chat.id, ctx.session.tg_chat_id,  ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, false);
     if (!user) {
       ctx.reply("Регистрация не удалась");
     } else {
@@ -33,10 +33,10 @@ export const case3 = async(ctx: any) => {
       }
     });
 
-    await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
+    await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, ctx.session.tg_chat_id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
   }else {
     ctx.reply("Ты успешно зарегистрировался");
-    await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id,ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
+    await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id, ctx.session.tg_chat_id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
   }
 };
 

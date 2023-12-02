@@ -25,4 +25,7 @@ export class User {
 
     @Column()
     description?: string;
+
+    @Column()
+    tg_chat_id!: number;
 }

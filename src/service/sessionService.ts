@@ -10,7 +10,7 @@ export const updateSessionsForUser = async (ctx: any) => {
   }
 };
 
-export const saveNewSession = async (ctx: any, chat_id: number) => {
+export const saveNewSession = async (ctx: any, chat_id: number, tg_chat_id: number) => {
 
   const existingSession = await sessionRepository.findOne({ where: { chat_id: chat_id } });
 
@@ -22,7 +22,7 @@ export const saveNewSession = async (ctx: any, chat_id: number) => {
     existingSession.timezone_minute = 0;
     existingSession.description = "";
     existingSession.interviewer = false;
-    existingSession.tg_chat_id = 0;
+    existingSession.tg_chat_id = tg_chat_id;
 
     console.log("Existing session updated successfully!");
 
@@ -37,7 +37,7 @@ export const saveNewSession = async (ctx: any, chat_id: number) => {
       description: "",
       interviewer: false,
       chat_id: chat_id,
-      tg_chat_id: 0
+      tg_chat_id: tg_chat_id
     });
     console.log("New session saved successfully!");
 
