@@ -1,7 +1,7 @@
 import { User } from "../entity/User";
-import { logAction } from '../logger/logger';
-import { addUserToDatabase, changeDescription, getAdmins, isValidGMTFormat } from '../service/registrationService';
-import { updateSessionDescription, updateSessionInterviewer, updateSessionRole, updateSessionStage, updateSessionTimezone, updateSessionsForUser } from '../service/sessionService';
+import { case1, case2, case3 } from "../service/messageService";
+import { changeDescription, getAdmins } from '../service/registrationService';
+import { updateSessionInterviewer, updateSessionStage, updateSessionsForUser } from '../service/sessionService';
 
 
 export const adminHandler = async (ctx: any) => {
@@ -15,13 +15,13 @@ export const interviewerHandler = async(ctx: any) => {
   ctx.session.stageId = 2;
   await updateSessionStage(ctx.session.id, 2);
   await updateSessionInterviewer(ctx.session.id, true);
-  ctx.reply('write your gmt time zone in the format "5" or "-4.30');
+  ctx.reply('Напиши часовой пояс GMT (твоего местонахождения) в формате "5" or "-4.30"');
 };
 
 export const intervieweeHandler = async (ctx: any) => {
   ctx.session.stageId = 2;
   await updateSessionStage(ctx.session.id, 2);
-  ctx.reply('write your gmt time zone in the format "5" or "-4.30');
+  ctx.reply('Напиши часовой пояс GMT (твоего местонахождения) в формате "5" or "-4.30"');
 };
 
 export const registrationHandler = async (ctx: any) => {
@@ -31,60 +31,16 @@ export const registrationHandler = async (ctx: any) => {
       await updateSessionsForUser(ctx);
       break;
 
-    case 1:
-      if (ctx.message.text === process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD) {
-        ctx.session.stageId = 0;
-        ctx.session.role = 'admin';
-        await updateSessionStage(ctx.session.id, 0);
-        await updateSessionRole(ctx.session.id, 'admin');
-
-        const username = ctx.from?.username || "Default";
-        const chat_id = ctx.chat.id;
-
-        addUserToDatabase(username, "admin", chat_id);
-
-        ctx.reply('Ты теперь админ');
-      } else {
-        ctx.reply('Введи правильный пароль');
-      }
-      break;
-
+      case 1:
+        await case1(ctx);
+        break;
     case 2:
-      if (isValidGMTFormat(ctx.message.text)) {
-        ctx.session.timezone = ctx.message.text;
-        ctx.session.stageId = 3;
-
-        await updateSessionTimezone(ctx.session.id, ctx.message.text);
-        await updateSessionStage(ctx.session.id, 3);
-
-        ctx.reply("Введи краткое описание о себе для общей информации чем занимался и т.д.");
-      } else {
-        ctx.reply("Введи время в корректной форме");
-      }
+      await case2(ctx);
       break;
 
     case 3:
-      ctx.session.description = ctx.message.text;
-      ctx.session.stageId = 0;
-
-      await updateSessionDescription(ctx.session.id, ctx.message.text);
-      await updateSessionStage(ctx.session.id, 0);
-
-      if (ctx.session.interviewer) {
-        const user = await addUserToDatabase(ctx.from?.username || "Default", "interviewer", ctx.chat.id, ctx.session.timezone, ctx.session.description, false);
-        if (!user) {
-          ctx.reply("Регистрация не удалась");
-        } else {
-          ctx.reply("Ожидайте ответа админа");
-          logAction(ctx.from?.username || "Default", "Has sent an application for the interviewer role")
-          await sendMessagesToAdmins(ctx, user);
-        }
-      } else {
-        ctx.reply("Ты успешно зарегистрировался");
-        await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id, ctx.session.timezone, ctx.session.description, true);
-      }
+      await case3(ctx);
       break;
-
     case 4:
       ctx.session.stageId = 0;
 
