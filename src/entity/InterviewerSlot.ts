@@ -8,7 +8,7 @@ export class InterviewerSlot {
     @Column()
     user_id!: number;
 
-    @Column()
+    @Column() 
     day_of_week!: string
 
     @Column()

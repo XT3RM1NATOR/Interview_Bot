@@ -1,5 +1,5 @@
 import sessionRepository from "../repository/SessionRepository";
-
+import { convertStringToNumbers } from "./registrationService";
 // Update or clear sessions for all fetched users
 export const updateSessionsForUser = async (ctx: any) => {
   try {
@@ -18,7 +18,8 @@ export const saveNewSession = async (ctx: any, chat_id: number) => {
     // Update the existing session with new values
     existingSession.role = "";
     existingSession.stageId = 0;
-    existingSession.timezone = "";
+    existingSession.timezone_hour = 0;
+    existingSession.timezone_minute = 0;
     existingSession.description = "";
     existingSession.interviewer = false;
 
@@ -30,7 +31,8 @@ export const saveNewSession = async (ctx: any, chat_id: number) => {
     const newSession = sessionRepository.create({
       role: "",
       stageId: 0,
-      timezone: "",
+      timezone_hour: 0,
+      timezone_minute: 0,
       description: "",
       interviewer: false,
       chat_id: chat_id
@@ -81,9 +83,11 @@ export const updateSessionStage = async (id: number, stageId: number) => {
 export const updateSessionTimezone = async (id: number, newTimezone: string) => {
   try {
     const existingSession = await sessionRepository.findOne({ where: { id: id } });
+    const timezone = convertStringToNumbers(newTimezone);
 
-    if (existingSession) {
-      existingSession.timezone = newTimezone;
+    if (existingSession && timezone) {
+      existingSession.timezone_hour = timezone[0];
+      existingSession.timezone_minute = timezone[1];
       await sessionRepository.save(existingSession);
       console.log("Timezone updated successfully!");
     } else {

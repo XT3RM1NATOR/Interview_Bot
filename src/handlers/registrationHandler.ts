@@ -15,13 +15,13 @@ export const interviewerHandler = async(ctx: any) => {
   ctx.session.stageId = 2;
   await updateSessionStage(ctx.session.id, 2);
   await updateSessionInterviewer(ctx.session.id, true);
-  ctx.reply('Напиши часовой пояс GMT (твоего местонахождения) в формате "5" or "-4.30"');
+  ctx.reply('Напиши часовой пояс GMT (твоего местонахождения) в формате "5" или "-4.30"');
 };
 
 export const intervieweeHandler = async (ctx: any) => {
   ctx.session.stageId = 2;
   await updateSessionStage(ctx.session.id, 2);
-  ctx.reply('Напиши часовой пояс GMT (твоего местонахождения) в формате "5" or "-4.30"');
+  ctx.reply('Напиши часовой пояс GMT (твоего местонахождения) в формате "5" или "-4:30"');
 };
 
 export const registrationHandler = async (ctx: any) => {
@@ -63,7 +63,7 @@ export const sendMessagesToAdmins = async (ctx: any, user: User) => {
       [{ text: '✅ Принять', callback_data: `accept_${user.id}` }, { text: '🚫 Отказать', callback_data: `reject${user.id}` }]
     ];
 
-    const message = `👨🏻‍💻Заявка на интервьюера:\nЮзернейм: @${user.username}\nЧасовой пояс: GMT(${user.timezone})\nБио: ${user.description}`;
+    const message = `👨🏻‍💻Заявка на интервьюера:\nЮзернейм: @${user.username}\nЧасовой пояс: GMT(${user.timezone_hour}:(${user.timezone_minute})\nБио: ${user.description}`;
     
     if (admins) {
       for (const admin of admins) {

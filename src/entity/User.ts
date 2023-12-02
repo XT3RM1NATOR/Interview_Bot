@@ -15,7 +15,10 @@ export class User {
     chat_id!: number
 
     @Column()
-    timezone?: string
+    timezone_hour?: number
+
+    @Column()
+    timezone_minute?: number
 
     @Column()
     approved?:boolean

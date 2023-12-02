@@ -1,6 +1,6 @@
 import { sendMessagesToAdmins } from "../handlers/registrationHandler";
 import { logAction } from '../logger/logger';
-import { addUserToDatabase, isValidGMTFormat } from '../service/registrationService';
+import { addUserToDatabase, convertStringToNumbers, isValidGMTFormat } from '../service/registrationService';
 import { updateSessionDescription, updateSessionRole, updateSessionStage, updateSessionTimezone } from '../service/sessionService';
 
 export const case3 = async(ctx: any) => {
@@ -11,7 +11,7 @@ export const case3 = async(ctx: any) => {
   await updateSessionStage(ctx.session.id, 0);
 
   if (ctx.session.interviewer) {
-    const user = await addUserToDatabase(ctx.from?.username || "Default", "interviewer", ctx.chat.id, ctx.session.timezone, ctx.session.description, false);
+    const user = await addUserToDatabase(ctx.from?.username || "Default", "interviewer", ctx.chat.id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, false);
     if (!user) {
       ctx.reply("Регистрация не удалась");
     } else {
@@ -33,16 +33,22 @@ export const case3 = async(ctx: any) => {
       }
     });
 
-    await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, ctx.session.timezone, ctx.session.description, true);
+    await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, ctx.session.timezone_hour, ctx.session.timezone_hour, ctx.session.description, true);
   }else {
     ctx.reply("Ты успешно зарегистрировался");
-    await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id, ctx.session.timezone, ctx.session.description, true);
+    await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id,ctx.session.timezone_hour, ctx.session.timezone_hour, ctx.session.description, true);
   }
 }
 
 export const case2 = async(ctx: any) => {
   if (isValidGMTFormat(ctx.message.text)) {
-    ctx.session.timezone = ctx.message.text;
+    const timezone = convertStringToNumbers(ctx.message.text);
+
+    if(timezone){
+      ctx.session.timezone_hour = timezone[0];
+      ctx.session.timezone_minute = timezone[1];
+    }
+
     ctx.session.stageId = 3;
 
     await updateSessionTimezone(ctx.session.id, ctx.message.text);

@@ -4,7 +4,8 @@ interface SessionData {
   id: number;
   role: string;
   stageId: number;
-  timezone: string;
+  timezone_hour: number;
+  timezone_minute: number;
   description: string;
   interviewer: boolean;
   chat_id: number;

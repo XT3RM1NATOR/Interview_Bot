@@ -1,7 +1,6 @@
 import { DataSource } from "typeorm";
 import { ChatList } from "../entity/ChatList";
 import { InterviewerSlot } from "../entity/InterviewerSlot";
-import { ScheduledInterview } from "../entity/ScheduledInterview";
 import { Session } from "../entity/Session";
 import { User } from "../entity/User";
 
@@ -13,7 +12,7 @@ const AppDataSource = new DataSource({
   username: "root",
   password: "milkshake",
   database: "node_ru",
-  entities: [User, ChatList, InterviewerSlot, ScheduledInterview, Session]
+  entities: [User, ChatList, InterviewerSlot, Session]
 })
 
 AppDataSource.initialize()

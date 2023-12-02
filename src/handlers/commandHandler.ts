@@ -32,7 +32,8 @@ export const startCommand = async (ctx: any) => {
         id: session.id,
         role: "",
         stageId: 0,
-        timezone: "",
+        timezone_hour: 0,
+        timezone_minute: 0,
         description: "",
         interviewer: false,
         chat_id: ctx.chat.id

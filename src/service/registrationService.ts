@@ -3,13 +3,14 @@ import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
 import { updateSessionRole } from "./sessionService";
 
-export const addUserToDatabase = async(username: string, role: string, chat_id: number, timezone?: string, description?: string, approved?: boolean) => {
+export const addUserToDatabase = async(username: string, role: string, chat_id: number, timezone_hour?: number, timezone_minute?: number, description?: string, approved?: boolean) => {
   try {
     const newUser = new User();
 
     newUser.username = username;
     newUser.role = role;
-    newUser.timezone = timezone;
+    newUser.timezone_hour = timezone_hour;
+    newUser.timezone_minute = timezone_minute;
     newUser.chat_id = chat_id;
     newUser.description = description;
     newUser.approved = approved;
@@ -22,7 +23,7 @@ export const addUserToDatabase = async(username: string, role: string, chat_id: 
 };
 
 export const isValidGMTFormat = (text: string): boolean => {
-  const gmtRegex = /^(-?(?:1[0-2]|\d)(?:\.30)?|-12)$/;
+  const gmtRegex = /^(-?(?:1[0-2]|\d)(?:\:30)?|-12)$/;
   return gmtRegex.test(text.trim());
 };
 
@@ -175,3 +176,20 @@ export const rejectCallback = async (ctx: any, userId: number) => {
     ctx.reply("Произошла ошибка при отказе юзера.");
   }
 };
+
+export const convertStringToNumbers = (input: string) => {
+  const numRegex = /^-?\d+$/; 
+  const timeRegex = /^-?(\d+):(\d+)$/; 
+
+  if (numRegex.test(input)) {
+    return [parseInt(input, 10)]; 
+  } else if (timeRegex.test(input)) {
+    const [, hours, minutes] = input.match(timeRegex)!;
+    const parsedHours = parseInt(hours, 10);
+    const parsedMinutes = parseInt(minutes, 10);
+
+    return [parsedHours, parsedMinutes];
+  } else {
+    return;
+  }
+}

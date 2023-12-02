@@ -11,8 +11,11 @@ export class Session {
   @Column()
   stageId!: number;
 
-  @Column({ type: 'varchar', length: 5 })
-  timezone!: string;
+  @Column()
+  timezone_hour?: number
+
+  @Column()
+  timezone_minute?: number
 
   @Column({ type: 'varchar', length: 300 })
   description!: string;
