@@ -1,4 +1,4 @@
-import { sendMessagesToAdmins } from "../handlers/responseHandler";
+import { sendMessagesToAdmins } from "../handlers/registrationHandler";
 import { logAction } from '../logger/logger';
 import { addUserToDatabase, isValidGMTFormat } from '../service/registrationService';
 import { updateSessionDescription, updateSessionRole, updateSessionStage, updateSessionTimezone } from '../service/sessionService';
@@ -19,7 +19,22 @@ export const case3 = async(ctx: any) => {
       logAction(ctx.from?.username || "Default", "Has sent an application for the interviewer role")
       await sendMessagesToAdmins(ctx, user);
     }
-  } else {
+  }else if(ctx.session.role === "admin"){
+
+    const options = [
+      [`Сделать план на неделю`, `Проверить занятые слоты`]
+    ];
+
+    ctx.reply("Ты успешно зарегистрировался! Что теперь?", {
+      reply_markup: {
+        keyboard: options,
+        one_time_keyboard: true, 
+        resize_keyboard: true
+      }
+    });
+
+    await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, ctx.session.timezone, ctx.session.description, true);
+  }else {
     ctx.reply("Ты успешно зарегистрировался");
     await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id, ctx.session.timezone, ctx.session.description, true);
   }
@@ -41,17 +56,12 @@ export const case2 = async(ctx: any) => {
 
 export const case1 = async(ctx: any) => {
   if (ctx.message.text === process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD) {
-    ctx.session.stageId = 0;
+    ctx.session.stageId = 2;
     ctx.session.role = 'admin';
-    await updateSessionStage(ctx.session.id, 0);
+    await updateSessionStage(ctx.session.id, 2);
     await updateSessionRole(ctx.session.id, 'admin');
 
-    const username = ctx.from?.username || "Default";
-    const chat_id = ctx.chat.id;
-
-    addUserToDatabase(username, "admin", chat_id);
-
-    ctx.reply('Ты теперь админ');
+    ctx.reply('Ты теперь админ! Теперь напиши часовой пояс GMT (твоего местонахождения) в формате "5" or "-4.30" ');
   } else {
     ctx.reply('Введи правильный пароль');
   }

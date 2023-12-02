@@ -1,17 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { ChatList } from "./ChatList";
-import { User } from "./User";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class InterviewerSlot {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @ManyToOne(() => User)
-    user!: User;
-
-    @ManyToOne(() => ChatList)
-    chat!: ChatList;
+    @Column()
+    user_id!: number;
 
     @Column()
     day_of_week!: string

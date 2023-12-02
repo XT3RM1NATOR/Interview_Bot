@@ -2,7 +2,8 @@ import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
 import { MyContext } from './config/session-config';
 import { deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
-import { adminHandler, intervieweeHandler, interviewerHandler, registrationHandler } from './handlers/responseHandler';
+import { planHandler } from './handlers/interviewHandler';
+import { adminHandler, intervieweeHandler, interviewerHandler, registrationHandler } from './handlers/registrationHandler';
 import { callbackQueryHandler } from "./service/registrationService";
 
 dotenv.config();
@@ -19,7 +20,10 @@ bot.hears('Интервьюер', interviewerHandler);
 bot.hears('Собеседуемый', intervieweeHandler);
 bot.hears('Админ', adminHandler);
 
+bot.hears('Сделать план на неделю', planHandler);
+
 bot.hears(/.*/, registrationHandler);
+
 
 bot.on('callback_query', async (ctx) => {
   await callbackQueryHandler(ctx);
