@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { InterviewerSlot } from "../entity/InterviewerSlot";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import { DaysMap } from "../type/type";
@@ -26,7 +27,6 @@ export const convertToMySQLDateFormat = (ctx: any, daysMap: DaysMap, dayOfWeek: 
   targetDate.setDate(today.getDate() + dayDifference);
 
   const [hours, minutes] = time.split(':').map(Number);
-  console.log("the time\n" + ctx.session.timezone_hour + "\n" + ctx.session.timezone_minute + "\n" + ctx.session);
   // Apply the UTC time with the additional offset
   const targetUTCTime = Date.UTC(
     targetDate.getFullYear(),
@@ -44,34 +44,38 @@ export const convertToMySQLDateFormat = (ctx: any, daysMap: DaysMap, dayOfWeek: 
 };
 
 export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endDateTimeStr: string) => {
-  const interval = 30 * 60 * 1000; // 30 minutes in milliseconds
+  try{
+    const interval = 30 * 60 * 1000; // 30 minutes in milliseconds
 
-  const startDateTime = new Date(startDateTimeStr);
-  const endDateTime = new Date(endDateTimeStr);
+    const startDateTime = new Date(startDateTimeStr);
+    const endDateTime = new Date(endDateTimeStr);
 
-  let currentTime = new Date(startDateTime);
+    let currentTime = new Date(startDateTime);
 
-  const slotsToSave: InterviewerSlot[] = [];
+    const slotsToSave: InterviewerSlot[] = [];
 
-  while (currentTime < endDateTime) {
-    const nextTime = new Date(currentTime.getTime() + interval);
+    while (currentTime < endDateTime) {
+      const nextTime = new Date(currentTime.getTime() + interval);
 
-    if (nextTime > endDateTime) {
-      nextTime.setTime(endDateTime.getTime());
+      if (nextTime > endDateTime) {
+        nextTime.setTime(endDateTime.getTime());
+      }
+      const interviewer = await checkUser(ctx);
+      const slot = new InterviewerSlot();
+      slot.start_time = format(currentTime, 'yyyy-MM-dd HH:mm:ss');
+      slot.end_time = format(nextTime, 'yyyy-MM-dd HH:mm:ss');
+      if(interviewer) slot.interviewer_id = interviewer.id;
+      // Add this slot to the array
+      slotsToSave.push(slot);
+
+      currentTime = nextTime;
     }
-    const interviewer = await checkUser(ctx);
-    const slot = new InterviewerSlot();
-    slot.start_time = currentTime.toISOString(); // Convert Date to string
-    slot.end_time = nextTime.toISOString(); // Convert Date to string
-    if(interviewer) slot.interviewer_id = interviewer.id;
-    // Add this slot to the array
-    slotsToSave.push(slot);
-
-    currentTime = nextTime;
+    console.log(ctx.session + "\n\n\n");
+    // Save the slots to the database
+    await InterviewerSlotRepository.save(slotsToSave);
+  }catch(err){
+    console.log(err);
   }
-
-  // Save the slots to the database
-  await InterviewerSlotRepository.save(slotsToSave);
 }
 
 
