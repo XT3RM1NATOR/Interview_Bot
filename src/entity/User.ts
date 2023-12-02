@@ -1,28 +1,28 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
-    id!: number
+    id!: number;
 
     @Column()
-    username!: string
+    username!: string;
 
     @Column()
-    role!: string
+    role!: string;
 
     @Column()
-    chat_id!: number
+    chat_id!: number;
 
     @Column()
-    timezone_hour?: number
+    timezone_hour?: number;
 
     @Column()
-    timezone_minute?: number
+    timezone_minute?: number;
 
     @Column()
-    approved?:boolean
+    approved?:boolean;
 
     @Column()
-    description?: string
+    description?: string;
 }

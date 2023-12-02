@@ -9,11 +9,17 @@ export class InterviewerSlot {
     user_id!: number;
 
     @Column() 
-    day_of_week!: string
+    day_of_week!: string;
 
     @Column()
-    start_time!: string
+    start_time!: string;
 
     @Column()
-    end_time!: string
+    end_time!: string;
+    
+    @Column()
+    interviewee_id?: number;
+
+    @Column()
+    chat_id?: number;
 }

@@ -12,10 +12,10 @@ export class Session {
   stageId!: number;
 
   @Column()
-  timezone_hour?: number
+  timezone_hour?: number;
 
   @Column()
-  timezone_minute?: number
+  timezone_minute?: number;
 
   @Column({ type: 'varchar', length: 300 })
   description!: string;
