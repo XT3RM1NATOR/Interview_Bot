@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
 import { MyContext } from './config/session-config';
-import { deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
+import { deleteAccountCommand, newDescriptionCommand } from "./handlers/commandHandler";
 import { handleTimeSlotInput, planHandler } from './handlers/interviewHandler';
 import { adminHandler, intervieweeHandler, interviewerHandler, registrationHandler } from './handlers/registrationHandler';
 import { callbackQueryHandler } from "./service/registrationService";
@@ -12,7 +12,10 @@ const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN!);
 
 bot.use(session());
 
-bot.command('start', startCommand);
+bot.command('start', (ctx: any) => {
+  ctx.reply("https://t.me/nodejs_ru")
+  ctx.reply("https://t.me/react_js")
+});
 bot.command('deleteaccount', deleteAccountCommand);
 bot.command('newdescription', newDescriptionCommand);
 

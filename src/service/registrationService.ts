@@ -114,7 +114,7 @@ export const deleteAccount = async (ctx: any, chatId: number) => {
         newDescriptionStage: false
        }; //привожу сессию в изначальный формат
 
-      ctx.reply("Ваш аккаунт удален");
+      ctx.reply("Ваш аккаунт удален нажмите /start что бы начать заново");
     } else {
       ctx.reply("У вас еще нет аккаунта");
     }
