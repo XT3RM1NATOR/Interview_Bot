@@ -103,7 +103,7 @@ export const startAction = async (ctx: any) => {
     }
   }else{
 
-    const tg_chat_id = ctx.match[0] == "accept_nodejs" ? 1 : ctx.match[0] == "accept_react" ? 2 : 0;
+    const tg_chat_id = ctx.match[0] == "accept_nodejs" ? 1 : ctx.match[0] == "accept_react" ? 2 : ctx.match[0] == "accept_react" ? 3 : 0;
     const session = await saveNewSession(ctx, ctx.chat.id, tg_chat_id);
 
     if (session) {

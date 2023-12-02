@@ -22,7 +22,7 @@ bot.hears('Собеседуемый', intervieweeHandler);
 bot.hears('Админ', adminHandler);
 bot.hears('Сделать план на неделю', planHandler);
 
-bot.action("accept_nodejs" || "accept_react", startAction);
+bot.action("accept_nodejs" || "accept_react" || "accept_js", startAction);
 bot.hears(process.env.TIME_SLOT_RGX!, handleTimeSlotInput);
 
 bot.hears(/.*/, registrationHandler);

@@ -41,6 +41,14 @@ export const startCommand = async (ctx: any) => {
   );
   messagesToDelete.push(message2.message_id);
 
+  const message3 = await ctx.replyWithHTML(
+    `<a href="https://t.me/js_ru">JavaScript</a>`,
+    Markup.inlineKeyboard([
+      Markup.button.callback('Выбрать', 'accept_js'),
+    ])
+  );
+  messagesToDelete.push(message3.message_id);
+
 }
 
 export const clearMessagesToDelete = () => {
