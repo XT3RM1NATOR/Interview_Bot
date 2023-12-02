@@ -177,19 +177,22 @@ export const rejectCallback = async (ctx: any, userId: number) => {
   }
 };
 
-export const convertStringToNumbers = (input: string) => {
+export const convertStringToNumbers = (input: string): number[] | [number, number] | undefined => {
   const numRegex = /^-?\d+$/; 
-  const timeRegex = /^-?(\d+):(\d+)$/; 
+  const timeRegex = /^(-?\d+):(-?\d+)$/; 
 
   if (numRegex.test(input)) {
-    return [parseInt(input, 10)]; 
+    const parsedNum = parseInt(input, 10);
+    return [parsedNum];
   } else if (timeRegex.test(input)) {
     const [, hours, minutes] = input.match(timeRegex)!;
     const parsedHours = parseInt(hours, 10);
     const parsedMinutes = parseInt(minutes, 10);
 
-    return [parsedHours, parsedMinutes];
+    // Ensure both hours and minutes are negative if input is in negative time format
+    const negativeMinutes = input.startsWith('-') ? -parsedMinutes : parsedMinutes;
+    return [parsedHours, negativeMinutes];
   } else {
-    return;
+    return undefined; // Returning undefined for invalid input
   }
 }
