@@ -7,7 +7,7 @@ export const addUserToDatabase = async(username: string, role: string, chat_id: 
 
     newUser.username = username;
     newUser.role = role;
-    newUser.timezone = timezone || 'Not Specified';
+    newUser.timezone = timezone;
     newUser.chat_id = chat_id;
     newUser.description = description;
     newUser.approved = approved;
@@ -20,7 +20,7 @@ export const addUserToDatabase = async(username: string, role: string, chat_id: 
 };
 
 export const isValidGMTFormat = (text: string): boolean => {
-  const gmtRegex = /^(-?(?:1[0-2]|[0-9])(?:\.30)?|-12)$/;
+  const gmtRegex = /^(-?(?:1[0-2]|\d)(?:\.30)?|-12)$/;
   return gmtRegex.test(text.trim());
 };
 

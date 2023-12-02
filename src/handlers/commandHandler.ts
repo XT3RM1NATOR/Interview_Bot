@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { checkUser, deleteAccount } from '../service/registrationService';
-import { deleteSessionById, saveNewSession, updateSessionNewDescriptionStage } from '../service/sessionService';
+import { deleteSessionById, saveNewSession, updateSessionStage } from '../service/sessionService';
 
 dotenv.config();
 
@@ -31,13 +31,10 @@ export const startCommand = async (ctx: any) => {
       ctx.session ??= { 
         id: session.id,
         role: "",
-        adminStage: false,
+        stageId: 0,
         timezone: "",
         description: "",
-        gmtStage: false,
-        descriptionStage: false,
         interviewer: false,
-        newDescriptionStage: false,
         chat_id: ctx.chat.id
       };
     }
@@ -58,9 +55,9 @@ export const startCommand = async (ctx: any) => {
 
 export const newDescriptionCommand = async (ctx: any) => {
   if (ctx.session) {
-    ctx.session.newDescriptionStage = true;
+    ctx.session.stageId = 4;
     ctx.reply("Кидай новое описание");
-    await updateSessionNewDescriptionStage(ctx.session.id, true);
+    await updateSessionStage(ctx.session.id, 4);
   } else {
     ctx.reply("Для начала нажми /start");
   }

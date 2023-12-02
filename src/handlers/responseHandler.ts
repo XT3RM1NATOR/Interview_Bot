@@ -1,26 +1,26 @@
 import { logAction } from '../logger/logger';
 import UserRepository from '../repository/UserRepository';
 import { Confirmation, Rejection, addUserToDatabase, changeDescription, isValidGMTFormat, sendMessagesToAdmins } from '../service/registrationService';
-import { updateSessionAdminStage, updateSessionDescription, updateSessionDescriptionStage, updateSessionGmtStage, updateSessionInterviewer, updateSessionNewDescriptionStage, updateSessionRole, updateSessionTimezone, updateSessionsForUser } from '../service/sessionService';
+import { updateSessionDescription, updateSessionInterviewer, updateSessionRole, updateSessionStage, updateSessionTimezone, updateSessionsForUser } from '../service/sessionService';
 
 
 export const adminHandler = async (ctx: any) => {
-  ctx.session.adminStage = true;
-  await updateSessionAdminStage(ctx.session.id, true);
+  ctx.session.stageId = 1;
+  await updateSessionStage(ctx.session.id, 1);
   ctx.reply('Ты выбрал админа, введи пароль:');
 }
 
 export const interviewerHandler = async(ctx: any) => {
   ctx.session.interviewer = true;
-  ctx.session.gmtStage = true;
-  await updateSessionGmtStage(ctx.session.id, true);
+  ctx.session.stageId = 2;
+  await updateSessionStage(ctx.session.id, 2);
   await updateSessionInterviewer(ctx.session.id, true);
   ctx.reply('write your gmt time zone in the format "5" or "-4.30');
 };
 
 export const intervieweeHandler = async (ctx: any) => {
-  ctx.session.gmtStage = true;
-  await updateSessionGmtStage(ctx.session.id, true);
+  ctx.session.stageId = 2;
+  await updateSessionStage(ctx.session.id, 2);
   ctx.reply('write your gmt time zone in the format "5" or "-4.30');
 };
 
@@ -28,11 +28,11 @@ export const registrationHandler = async (ctx: any) => {
   if (!ctx.session) {
     ctx.reply("Сервер был перезагружен повторите сообщение");
     await updateSessionsForUser(ctx);
-  } else if (ctx.session?.adminStage) {
+  } else if (ctx.session?.stageId === 1) {
     if (ctx.message.text === process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD) {
-      ctx.session.adminStage = false;
+      ctx.session.stageId = 0;
       ctx.session.role = 'admin';
-      await updateSessionAdminStage(ctx.session.id, false);
+      await updateSessionStage(ctx.session.id, 0);
       await updateSessionRole(ctx.session.id, 'admin');
 
       const username = ctx.from?.username || "Default";
@@ -44,26 +44,24 @@ export const registrationHandler = async (ctx: any) => {
     } else {
       ctx.reply('Введи правильный пароль');
     }
-  } else if (ctx.session?.gmtStage) {
+  } else if (ctx.session?.stageId === 2) {
     if (isValidGMTFormat(ctx.message.text)) {
-      ctx.session.gmtStage = false;
       ctx.session.timezone = ctx.message.text;
-      ctx.session.descriptionStage = true;
+      ctx.session.stageId = 3;
 
-      await updateSessionGmtStage(ctx.session.id, false);
       await updateSessionTimezone(ctx.session.id, ctx.message.text);
-      await updateSessionDescriptionStage(ctx.session.id, true);
+      await updateSessionStage(ctx.session.id, 3);
 
       ctx.reply("Введи краткое описание о себе для общей информации чем занимался и т.д.");
     } else {
       ctx.reply("Введи время в корректной форме");
     }
-  } else if (ctx.session?.descriptionStage) {
+  } else if (ctx.session?.stageId === 3) {
     ctx.session.description = ctx.message.text;
-    ctx.session.descriptionStage = false;
+    ctx.session.stageId = 0;
 
     await updateSessionDescription(ctx.session.id, ctx.message.text);
-    await updateSessionDescriptionStage(ctx.session.id, false);
+    await updateSessionStage(ctx.session.id, 0);
 
     const username = ctx.from?.username || "Default";
     const chat_id = ctx.chat.id;
@@ -83,12 +81,12 @@ export const registrationHandler = async (ctx: any) => {
       ctx.reply("Ты успешно зарегистрировался");
       await addUserToDatabase(username, "interviewee", chat_id, timezone, info, true);
     }
-  } else if (ctx.session?.newDescriptionStage) {
+  } else if (ctx.session?.stageId === 4) {
     const chatId = ctx.message.chat.id;
     const newDescription = ctx.message.text;
-    ctx.session.newDescriptionStage = false;
+    ctx.session.stageId = 0;
 
-    await updateSessionNewDescriptionStage(ctx.session.id, false);
+    await updateSessionStage(ctx.session.id, 0);
     await changeDescription(ctx, chatId, newDescription);
   } else {
     ctx.reply(`Команда пока не распознана`);

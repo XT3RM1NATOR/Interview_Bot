@@ -9,7 +9,7 @@ export class Session {
   role!: string;
 
   @Column()
-  adminStage!: boolean;
+  stageId!: number;
 
   @Column({ type: 'varchar', length: 5 })
   timezone!: string;
@@ -18,16 +18,7 @@ export class Session {
   description!: string;
 
   @Column()
-  gmtStage!: boolean;
-
-  @Column()
-  descriptionStage!: boolean;
-
-  @Column()
   interviewer!: boolean;
-
-  @Column()
-  newDescriptionStage!: boolean;
 
   @Column()
   chat_id!: number;

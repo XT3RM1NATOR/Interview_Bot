@@ -3,7 +3,7 @@ import sessionRepository from "../repository/SessionRepository";
 // Update or clear sessions for all fetched users
 export const updateSessionsForUser = async (ctx: any) => {
   try {
-    const session = sessionRepository.findOne( { where: { chat_id: ctx.chat.id } } );
+    const session = await sessionRepository.findOne( { where: { chat_id: ctx.chat.id } } );
     ctx.session = session;
   } catch (err) {
     console.log(err);
@@ -17,13 +17,10 @@ export const saveNewSession = async (ctx: any, chat_id: number) => {
   if (existingSession) {
     // Update the existing session with new values
     existingSession.role = "";
-    existingSession.adminStage = false;
+    existingSession.stageId = 0;
     existingSession.timezone = "";
     existingSession.description = "";
-    existingSession.gmtStage = false;
-    existingSession.descriptionStage = false;
     existingSession.interviewer = false;
-    existingSession.newDescriptionStage = false;
 
     console.log("Existing session updated successfully!");
 
@@ -32,13 +29,10 @@ export const saveNewSession = async (ctx: any, chat_id: number) => {
     // Create a new session if the chat_id doesn't exist
     const newSession = sessionRepository.create({
       role: "",
-      adminStage: false,
+      stageId: 0,
       timezone: "",
       description: "",
-      gmtStage: false,
-      descriptionStage: false,
       interviewer: false,
-      newDescriptionStage: false,
       chat_id: chat_id
     });
     console.log("New session saved successfully!");
@@ -68,20 +62,19 @@ export const updateSessionRole = async (id: number, newRole: string) => {
   }
 };
 
-// Function to update admin stage
-export const updateSessionAdminStage = async (id: number, isAdmin: boolean) => {
+export const updateSessionStage = async (id: number, stageId: number) => {
   try {
     const existingSession = await sessionRepository.findOne({ where: { id: id } });
 
     if (existingSession) {
-      existingSession.adminStage = isAdmin;
+      existingSession.stageId = stageId;
       await sessionRepository.save(existingSession);
-      console.log("Admin stage updated successfully!");
+      console.log("Stage ID updated successfully!");
     } else {
       console.log("Session not found.");
     }
   } catch (error) {
-    console.error("Error updating admin stage:", error);
+    console.error("Error updating stage ID:", error);
   }
 };
 
@@ -118,38 +111,6 @@ export const updateSessionDescription = async (id: number, newDescription: strin
   }
 };
 
-export const updateSessionGmtStage = async (id: number, newGmtStage: boolean) => {
-  try {
-    const existingSession = await sessionRepository.findOne({ where: { id: id } });
-
-    if (existingSession) {
-      existingSession.gmtStage = newGmtStage;
-      await sessionRepository.save(existingSession);
-      console.log("Gmt Stage updated successfully!");
-    } else {
-      console.log("Session not found.");
-    }
-  } catch (error) {
-    console.error("Error updating GMT stage:", error);
-  }
-};
-
-export const updateSessionDescriptionStage = async (id: number, newDescriptionStage: boolean) => {
-  try {
-    const existingSession = await sessionRepository.findOne({ where: { id: id } });
-
-    if (existingSession) {
-      existingSession.descriptionStage = newDescriptionStage;
-      await sessionRepository.save(existingSession);
-      console.log("Description Stage updated successfully!");
-    } else {
-      console.log("Session not found.");
-    }
-  } catch (error) {
-    console.error("Error updating description stage:", error);
-  }
-};
-
 export const updateSessionInterviewer = async (id: number, isInterviewer: boolean) => {
   try {
     const existingSession = await sessionRepository.findOne({ where: { id: id } });
@@ -163,22 +124,6 @@ export const updateSessionInterviewer = async (id: number, isInterviewer: boolea
     }
   } catch (error) {
     console.error("Error updating interviewer:", error);
-  }
-};
-
-export const updateSessionNewDescriptionStage = async (id: number, isNewDescriptionStage: boolean) => {
-  try {
-    const existingSession = await sessionRepository.findOne({ where: { id: id } });
-
-    if (existingSession) {
-      existingSession.newDescriptionStage = isNewDescriptionStage;
-      await sessionRepository.save(existingSession);
-      console.log("New Description Stage updated successfully!");
-    } else {
-      console.log("Session not found.");
-    }
-  } catch (error) {
-    console.error("Error updating new description stage:", error);
   }
 };
 
