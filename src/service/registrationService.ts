@@ -1,4 +1,5 @@
 import { User } from "../entity/User";
+import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
 import { updateSessionRole } from "./sessionService";
 
@@ -146,9 +147,9 @@ export const callbackQueryHandler = async (ctx: any) => {
 export const acceptCallback = async (ctx: any, userId: number) => {
   try {
     const user = await UserRepository.findOne({ where: { id: userId } });
-
-    if (user) {
-      updateSessionRole(ctx.session.id, "interviewer");
+    const session = await SessionRepository.findOne({where: {chat_id:user?.chat_id}})
+    if (user && session) {
+      updateSessionRole(session.id, "interviewer");
       user.approved = true;
       await UserRepository.save(user);
       Confirmation(ctx, user.chat_id);
