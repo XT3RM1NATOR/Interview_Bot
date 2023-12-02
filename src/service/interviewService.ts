@@ -38,13 +38,12 @@ export const convertToMySQLDateFormat = (ctx: any, daysMap: DaysMap, dayOfWeek: 
 
   // Create a new date object from the UTC time with the offset
   const targetDateWithOffset = new Date(targetUTCTime);
-  console.log("this is the target " + targetDateWithOffset + "\n\n\n");
   const mysqlDateFormat = targetDateWithOffset.toISOString().slice(0, 19).replace('T', ' ');
 
   return mysqlDateFormat;
 };
 
-const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endDateTimeStr: string) => {
+export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endDateTimeStr: string) => {
   const interval = 30 * 60 * 1000; // 30 minutes in milliseconds
 
   const startDateTime = new Date(startDateTimeStr);
