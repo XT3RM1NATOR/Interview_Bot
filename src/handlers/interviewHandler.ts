@@ -133,7 +133,34 @@ export const getSlotsByDate = async (ctx: any) => {
 
 
 export const getSlotsForWeek =  async (ctx: any) => {
-  // Action for "Посмотреть все слоты на неделю" button
-  ctx.reply("Showing all slots for the week...");
-  // Perform actions for displaying all slots for the week...
+  const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
+  try {
+
+    const slots = await InterviewerSlotRepository.find();
+
+    if(slots){
+      for (const slot of slots) {
+        const interviewer = await UserRepository.findOne({where: { id: slot.interviewer_id }});
+        const user = await UserRepository.findOne({where: { chat_id: session!.chat_id }});
+  
+        const startTime = slot.start_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const endTime = slot.end_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  
+        const message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
+        
+        await ctx.reply(message, {
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '✅', callback_data: `select_slot_${slot.id}_${user?.id}` }]
+            ]
+          }
+        });
+      }
+    } else {
+      ctx.reply("В вашем чате на эту дату нет свободных слотов")
+    }
+  } catch (error) {
+    console.error("Error fetching slots by date:", error);
+    ctx.reply("There was an error fetching slots for the specified date.");
+  }
 }
