@@ -1,7 +1,7 @@
 import { InterviewerSlot } from "../entity/InterviewerSlot";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import SessionRepository from "../repository/SessionRepository";
-import { DaysMap } from "../type/type";
+import { DaysMap } from "../resource/customTypes/type";
 import { checkUser } from "./registrationService";
 
 export const getTemplateForCurrentWeek = () => {
