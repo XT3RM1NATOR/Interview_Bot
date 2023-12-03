@@ -1,6 +1,7 @@
 
 import { Between } from "typeorm";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
+import UserRepository from "../repository/UserRepository";
 import { getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
 import { checkServer } from "../service/messageService";
 import { updateSessionStage } from "../service/sessionService";
@@ -92,6 +93,7 @@ export const interviewRegistrationHandler = async (ctx: any) => {
 
 export const getSlotsByDate = async (ctx: any) => {
   const selectedDate = ctx.match[1];
+  console.log("message " + selectedDate)
   try {
     const startDate = new Date(`${selectedDate}T00:00:00`);
     const endDate = new Date(`${selectedDate}T23:59:59`);
@@ -102,13 +104,29 @@ export const getSlotsByDate = async (ctx: any) => {
       },
     });
 
-    ctx.reply(slots)
+    for (const slot of slots) {
+      const interviewer = await UserRepository.findOne({where: { id: slot.interviewer_id }});
+      const user = await UserRepository.findOne({where: { chat_id: ctx.session.chat_id }});
+
+      const startTime = slot.start_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const endTime = slot.end_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      const message = `ID: ${slot.id}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
+      
+      await ctx.reply(message, {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '✅', callback_data: `select_slot_${slot.id}_${user?.id}` }]
+          ]
+        }
+      });
+    }
   } catch (error) {
-    // Handle errors
     console.error("Error fetching slots by date:", error);
-    return []; // or throw an error as needed
+    ctx.reply("There was an error fetching slots for the specified date.");
   }
-}
+};
+
 
 export const getSlotsForWeek =  async (ctx: any) => {
   // Action for "Посмотреть все слоты на неделю" button

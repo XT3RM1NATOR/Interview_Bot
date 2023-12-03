@@ -60,8 +60,11 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
       }
       const interviewer = await checkUser(ctx);
       const slot = new InterviewerSlot();
+
       slot.start_time = currentTime;
       slot.end_time = nextTime;
+      slot.interviewer_username = ctx.message.from.username;
+
       if(interviewer) slot.interviewer_id = interviewer.id;
       // Add this slot to the array
       slotsToSave.push(slot);

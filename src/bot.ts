@@ -12,7 +12,6 @@ const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN!);
 
 bot.use(session());
 
-//bot.command('start', startCommand);
 bot.command('start', startCommand);
 bot.command('deleteaccount', deleteAccountCommand);
 bot.command('newdescription', newDescriptionCommand);

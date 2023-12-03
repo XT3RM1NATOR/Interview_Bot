@@ -9,6 +9,9 @@ export class InterviewerSlot {
     interviewer_id!: number;
 
     @Column()
+    interviewer_username!: string;
+
+    @Column()
     start_time!: Date;
 
     @Column()
