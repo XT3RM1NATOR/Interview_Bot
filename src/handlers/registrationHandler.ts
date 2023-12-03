@@ -1,4 +1,5 @@
 import { User } from "../entity/User";
+import SessionRepository from "../repository/SessionRepository";
 import { case1, case2, case3, checkServer } from "../service/messageService";
 import { changeDescription, checkUser, getAdmins } from '../service/registrationService';
 import { saveNewSession, updateSessionInterviewer, updateSessionStage } from '../service/sessionService';
@@ -6,27 +7,24 @@ import { clearMessagesToDelete, messagesToDelete } from "./commandHandler";
 
 
 export const adminHandler = async (ctx: any) => {
-  ctx.session.stageId = 1;
   await updateSessionStage(ctx.session.id, 1);
   ctx.reply('Ты выбрал админа, введи пароль:');
 }
 
 export const interviewerHandler = async(ctx: any) => {
-  ctx.session.interviewer = true;
-  ctx.session.stageId = 2;
   await updateSessionStage(ctx.session.id, 2);
   await updateSessionInterviewer(ctx.session.id, true);
   ctx.reply('Напиши часовой пояс GMT (твоего местонахождения) в формате "5" или "-4.30"');
 };
 
 export const intervieweeHandler = async (ctx: any) => {
-  ctx.session.stageId = 2;
   await updateSessionStage(ctx.session.id, 2);
   ctx.reply('Напиши часовой пояс GMT (твоего местонахождения) в формате "5" или "-4:30"');
 };
 
 export const registrationHandler = async (ctx: any) => {
-  switch (ctx.session?.stageId) {
+  const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
+  switch (session?.stageId) {
     case undefined:
       await checkServer(ctx);
       break;
@@ -36,17 +34,13 @@ export const registrationHandler = async (ctx: any) => {
     case 2:
       await case2(ctx);
       break;
-
     case 3:
       await case3(ctx);
       break;
     case 4:
-      ctx.session.stageId = 0;
-
       await updateSessionStage(ctx.session.id, 0);
       await changeDescription(ctx, ctx.message.chat.id, ctx.message.text);
       break;
-
     default:
       ctx.reply(`Команда пока не распознана`);
       break;
@@ -108,15 +102,7 @@ export const startAction = async (ctx: any) => {
 
     if (session) {
       ctx.session ??= {
-        id: session.id,
-        role: "",
-        stageId: 0,
-        timezone_hour: 0,
-        timezone_minute: 0,
-        description: "",
-        interviewer: false,
-        chat_id: ctx.chat.id,
-        tg_chat_id: tg_chat_id
+        id: session.id
       };
     }
     

@@ -7,7 +7,6 @@ dotenv.config();
 
 export const newDescriptionCommand = async (ctx: any) => {
   if (ctx.session) {
-    ctx.session.stageId = 4;
     ctx.reply("Кидай новое описание");
     await updateSessionStage(ctx.session.id, 4);
   } else {

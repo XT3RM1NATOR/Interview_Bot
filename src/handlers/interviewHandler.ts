@@ -1,6 +1,7 @@
 
 import { Between } from "typeorm";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
+import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
 import { getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
 import { checkServer } from "../service/messageService";
@@ -12,7 +13,6 @@ export const planHandler = async (ctx:any) => {
     const instructions = "Кидай в определенном формате ниже шаблон на эту неделю: (Время только ровное по 30 минут промежуткам, например 15:00 или 14:30)";
     ctx.reply(instructions);
 
-    ctx.session.stageId = 5;
     await updateSessionStage(ctx.session.id, 5);
 
     const templateForWeek = getTemplateForCurrentWeek();
@@ -22,9 +22,8 @@ export const planHandler = async (ctx:any) => {
 
 export const timeSlotHandler = async (ctx: any) => {
   const check = await checkServer(ctx);
-
-  if (ctx.session.stageId === 5 && check) {
-    ctx.session.stageId = 0;
+  const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
+  if (session!.stageId === 5 && check) {
     await updateSessionStage(ctx.session.id, 0);
     const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 
@@ -93,7 +92,7 @@ export const interviewRegistrationHandler = async (ctx: any) => {
 
 export const getSlotsByDate = async (ctx: any) => {
   const selectedDate = ctx.match[1];
-  console.log("message " + selectedDate)
+  const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   try {
     const startDate = new Date(`${selectedDate}T00:00:00`);
     const endDate = new Date(`${selectedDate}T23:59:59`);
@@ -101,14 +100,14 @@ export const getSlotsByDate = async (ctx: any) => {
     const slots = await InterviewerSlotRepository.find({
       where: {
         start_time: Between(startDate, endDate),
-        chat_id: ctx.session.tg_chat_id
+        chat_id: session!.tg_chat_id
       },
     });
 
     if(slots){
       for (const slot of slots) {
         const interviewer = await UserRepository.findOne({where: { id: slot.interviewer_id }});
-        const user = await UserRepository.findOne({where: { chat_id: ctx.session.chat_id }});
+        const user = await UserRepository.findOne({where: { chat_id: session!.chat_id }});
   
         const startTime = slot.start_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const endTime = slot.end_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });

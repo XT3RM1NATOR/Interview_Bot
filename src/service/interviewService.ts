@@ -1,5 +1,6 @@
 import { InterviewerSlot } from "../entity/InterviewerSlot";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
+import SessionRepository from "../repository/SessionRepository";
 import { DaysMap } from "../type/type";
 import { checkUser } from "./registrationService";
 
@@ -16,35 +17,36 @@ export const getTemplateForCurrentWeek = () => {
   return template;
 };
 
-export const convertToMySQLDateFormat = (ctx: any, daysMap: DaysMap, dayOfWeek: keyof DaysMap, time: string) => {
+export const convertToMySQLDateFormat = async (ctx: any, daysMap: DaysMap, dayOfWeek: keyof DaysMap, time: string) => {
   const today = new Date();
   const currentDay = today.getDay();
   const dayDifference = (daysMap[dayOfWeek] - currentDay + 7) % 7;
-
+  const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   const targetDate = new Date(today);
   targetDate.setDate(today.getDate() + dayDifference);
 
   const [hours, minutes] = time.split(':').map(Number);
   // Apply the UTC time with the additional offset
-  const targetUTCTime = Date.UTC(
-    targetDate.getFullYear(),
-    targetDate.getMonth(),
-    targetDate.getDate(),
-    hours - ctx.session.timezone_hour, // Apply the additional offset for hours
-    minutes - ctx.session.timezone_minute // Apply the additional offset for minutes
-  );
+  if(session!.timezone_hour && session!.timezone_minute){
+      const targetUTCTime = Date.UTC(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate(),
+      hours - session!.timezone_hour, // Apply the additional offset for hours
+      minutes - session!.timezone_minute // Apply the additional offset for minutes
+    );
+    // Create a new date object from the UTC time with the offset
+    const targetDateWithOffset = new Date(targetUTCTime);
+    const mysqlDateFormat = targetDateWithOffset.toISOString().slice(0, 19).replace('T', ' ');
 
-  // Create a new date object from the UTC time with the offset
-  const targetDateWithOffset = new Date(targetUTCTime);
-  const mysqlDateFormat = targetDateWithOffset.toISOString().slice(0, 19).replace('T', ' ');
-
-  return mysqlDateFormat;
+    return mysqlDateFormat;
+  }
 };
 
 export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endDateTimeStr: string) => {
   try{
     const interval = 30 * 60 * 1000; // 30 minutes in milliseconds
-
+    const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
     const startDateTime = new Date(startDateTimeStr);
     const endDateTime = new Date(endDateTimeStr);
 
@@ -60,20 +62,18 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
       }
       const interviewer = await checkUser(ctx);
       const slot = new InterviewerSlot();
-
-      slot.start_time = currentTime;
-      slot.end_time = nextTime;
-      slot.interviewer_username = ctx.message.from.username;
-      slot.chat_id = ctx.session.tg_chat_id;
-
+      if(session){
+        slot.start_time = currentTime;
+        slot.end_time = nextTime;
+        slot.interviewer_username = ctx.message.from.username;
+        slot.chat_id = session.tg_chat_id;
+      }
       if(interviewer) slot.interviewer_id = interviewer.id;
       // Add this slot to the array
       slotsToSave.push(slot);
 
       currentTime = nextTime;
     }
-    console.log(ctx.session + "\n\n\n");
-    // Save the slots to the database
     await InterviewerSlotRepository.save(slotsToSave);
   }catch(err){
     console.log(err);
@@ -98,9 +98,9 @@ export const handleTimeSlotInput = async (ctx: any) => {
   dayTimePairs.forEach(async (dayTimePair: string) => {
     const [dayOfWeek, startTime, endTime] = dayTimePair.split(/:\s|-/);
     if (dayOfWeek in daysMap) { // Check if the dayOfWeek exists in DaysMap
-      const startTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, startTime);
-      const endTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
-      await saveTimeIntervals(ctx, startTimeMySQL, endTimeMySQL);
+      const startTimeMySQL = await convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, startTime);
+      const endTimeMySQL = await convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
+      if(startTimeMySQL && endTimeMySQL) await saveTimeIntervals(ctx, startTimeMySQL, endTimeMySQL);
     } else {
       ctx.reply(`Invalid day: ${dayOfWeek}`);
     }

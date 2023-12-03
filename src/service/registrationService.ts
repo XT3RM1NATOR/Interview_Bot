@@ -103,19 +103,7 @@ export const deleteAccount = async (ctx: any, chatId: number) => {
 
     if (userToRemove.length > 0) {
       await UserRepository.remove(userToRemove);
-
-      ctx.session ??= { 
-        role: "",
-        adminStage: false,
-        timezone: "",
-        description: "",
-        gmtStage: false,
-        descriptionStage: false,
-        interviewer:false,
-        newDescriptionStage: false,
-        tg_chat_id: 0
-       }; //привожу сессию в изначальный формат
-
+      ctx.session = null;
       ctx.reply("Ваш аккаунт удален нажмите /start что бы начать заново");
     } else {
       ctx.reply("У вас еще нет аккаунта");

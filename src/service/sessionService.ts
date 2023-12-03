@@ -53,11 +53,10 @@ export const updateSessionRole = async (id: number, newRole: string) => {
     if (existingSession) {
       // Update the role
       existingSession.role = newRole;
-
+      
+      console.log("Role updated successfully!");
       // Save the changes to the database
       await sessionRepository.save(existingSession);
-
-      console.log("Role updated successfully!");
     } else {
       console.log("Session not found.");
     }

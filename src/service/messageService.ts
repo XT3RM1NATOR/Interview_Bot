@@ -1,17 +1,17 @@
 import { sendMessagesToAdmins } from "../handlers/registrationHandler";
 import { logAction } from '../logger/logger';
-import { addUserToDatabase, convertStringToNumbers, isValidGMTFormat } from '../service/registrationService';
+import SessionRepository from "../repository/SessionRepository";
+import { addUserToDatabase, isValidGMTFormat } from '../service/registrationService';
 import { updateSessionDescription, updateSessionRole, updateSessionStage, updateSessionTimezone, updateSessionsForUser } from '../service/sessionService';
 
 export const case3 = async(ctx: any) => {
-  ctx.session.description = ctx.message.text;
-  ctx.session.stageId = 0;
 
   await updateSessionDescription(ctx.session.id, ctx.message.text);
   await updateSessionStage(ctx.session.id, 0);
+  const session = await SessionRepository.findOne({where: {id: ctx.session.id}});
 
-  if (ctx.session.interviewer) {
-    const user = await addUserToDatabase(ctx.from?.username || "Default", "interviewer", ctx.chat.id, ctx.session.tg_chat_id,  ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, false);
+  if (session!.interviewer) {
+    const user = await addUserToDatabase(ctx.from?.username || "Default", "interviewer", ctx.chat.id, session!.tg_chat_id,  session!.timezone_hour, session!.timezone_minute, session!.description, false);
     if (!user) {
       ctx.reply("Регистрация не удалась");
     } else {
@@ -19,7 +19,7 @@ export const case3 = async(ctx: any) => {
       logAction(ctx.from?.username || "Default", "Has sent an application for the interviewer role")
       await sendMessagesToAdmins(ctx, user);
     }
-  }else if(ctx.session.role === "admin"){
+  }else if(session!.role === "admin"){
 
     const options = [
       [`Сделать план на неделю`, `Проверить занятые слоты`]
@@ -28,12 +28,12 @@ export const case3 = async(ctx: any) => {
     ctx.reply("Ты успешно зарегистрировался! Что теперь?", {
       reply_markup: {
         keyboard: options,
-        one_time_keyboard: true, 
+        one_time_keyboard: true,
         resize_keyboard: true
       }
     });
 
-    await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, ctx.session.tg_chat_id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
+    await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, session!.tg_chat_id, session!.timezone_hour, session!.timezone_minute, session!.description, true);
   }else {
     const options = [
       [`Зарегестрироваться на интервью`, `Посмотреть мои слоты`]
@@ -46,25 +46,14 @@ export const case3 = async(ctx: any) => {
         resize_keyboard: true
       }
     });
-    
-    ctx.session.role = "interviewee";
-    await updateSessionRole(ctx.session.id, "interviewee");
 
-    await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id, ctx.session.tg_chat_id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
+    await updateSessionRole(ctx.session.id, "interviewee");
+    await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id, session!.tg_chat_id, session!.timezone_hour, session!.timezone_minute, session!.description, true);
   }
 };
 
 export const case2 = async(ctx: any) => {
   if (isValidGMTFormat(ctx.message.text)) {
-    const timezone = convertStringToNumbers(ctx.message.text);
-
-    if(timezone){
-      ctx.session.timezone_hour = timezone[0];
-      ctx.session.timezone_minute = timezone[1] || 0 ;
-    }
-
-    ctx.session.stageId = 3;
-
     await updateSessionTimezone(ctx.session.id, ctx.message.text);
     await updateSessionStage(ctx.session.id, 3);
 
@@ -76,8 +65,6 @@ export const case2 = async(ctx: any) => {
 
 export const case1 = async(ctx: any) => {
   if (ctx.message.text === process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD) {
-    ctx.session.stageId = 2;
-    ctx.session.role = 'admin';
     await updateSessionStage(ctx.session.id, 2);
     await updateSessionRole(ctx.session.id, 'admin');
 
