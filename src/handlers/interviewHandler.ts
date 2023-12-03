@@ -1,8 +1,7 @@
 
-import { convertToMySQLDateFormat, getTemplateForCurrentWeek, saveTimeIntervals } from "../service/interviewService";
+import { getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
 import { checkServer } from "../service/messageService";
 import { updateSessionStage } from "../service/sessionService";
-import { DaysMap } from "../type/type";
 
 export const planHandler = async (ctx:any) => {
   const check = await checkServer(ctx);
@@ -18,38 +17,39 @@ export const planHandler = async (ctx:any) => {
   }
 }
 
-export const handleTimeSlotInput = async (ctx: any) => {
+export const timeSlotHandler = async (ctx: any) => {
   const check = await checkServer(ctx);
-  
-  if(ctx.session.stageId === 5 && check){
+
+  if (ctx.session.stageId === 5 && check) {
     ctx.session.stageId = 0;
     await updateSessionStage(ctx.session.id, 0);
+    const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 
     const input = ctx.message.text;
-    const dayTimePairs = input.split(/\n/);
-  
-    const daysMap: DaysMap = {
-      'Понедельник': 1,
-      'Вторник': 2,
-      'Среда': 3,
-      'Четверг': 4,
-      'Пятница': 5,
-      'Суббота': 6,
-      'Воскресенье': 7,
-    };
+    const lines = input.trim().split('\n');
 
-    dayTimePairs.forEach(async (dayTimePair: string) => {
-      const [dayOfWeek, startTime, endTime] = dayTimePair.split(/:\s|-/);
-      if (dayOfWeek in daysMap) { // Check if the dayOfWeek exists in DaysMap
-        const startTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, startTime);
-        const endTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
-        await saveTimeIntervals(ctx, startTimeMySQL, endTimeMySQL);
-      } else {
-        console.log(`Invalid day: ${dayOfWeek}`);
+    let invalidInput = false;
+
+    lines.forEach((line: any) => {
+      const [day, timeRange] = line.split(': ');
+
+      const dayTrimmed = day.trim();
+      const timeRangePattern = /^\d\d:\d\d-\d\d:\d\d$/;
+
+      if (
+        !daysOfWeek.includes(dayTrimmed) ||
+        !timeRangePattern.test(timeRange.trim())
+      ) {
+        invalidInput = true;
       }
     });
-  }else{
-    ctx.reply("Вы не авторизованы для команды или не прошли правильно")
+
+    if (invalidInput) {
+      ctx.reply("Неправильный формат времени");
+    } else {
+      handleTimeSlotInput(ctx);
+    }
+  } else {
+    ctx.reply("Вы не авторизованы для команды или не прошли правильно");
   }
-  
 };

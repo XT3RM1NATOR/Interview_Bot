@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
 import { MyContext } from './config/session-config';
 import { deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
-import { handleTimeSlotInput, planHandler } from './handlers/interviewHandler';
+import { planHandler, timeSlotHandler } from './handlers/interviewHandler';
 import { adminHandler, intervieweeHandler, interviewerHandler, registrationHandler, startAction } from './handlers/registrationHandler';
 import { callbackQueryHandler } from "./service/registrationService";
 
@@ -22,8 +22,8 @@ bot.hears('Собеседуемый', intervieweeHandler);
 bot.hears('Админ', adminHandler);
 bot.hears('Сделать план на неделю', planHandler);
 
-bot.action("accept_nodejs" || "accept_react" || "accept_js", startAction);
-bot.hears(process.env.TIME_SLOT_RGX!, handleTimeSlotInput);
+bot.action(["accept_nodejs", "accept_react", "accept_js"], startAction);
+bot.hears(/([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})(?:\s+([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})){0,6}/, timeSlotHandler);
 
 bot.hears(/.*/, registrationHandler);
 

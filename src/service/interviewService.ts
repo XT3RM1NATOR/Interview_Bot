@@ -8,13 +8,12 @@ export const getTemplateForCurrentWeek = () => {
   const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
   const today = new Date();
   const currentDayIndex = today.getDay(); // 0 for Sunday, 1 for Monday, and so on
-  const remainingDays = daysOfWeek.slice(currentDayIndex); // Remaining days in the week
-  
-  const template = remainingDays.map((day, index) => {
-    const dayOfWeek = daysOfWeek[currentDayIndex + index];
-    return `${dayOfWeek}: XX:XX-XX:XX`; // Replace XX:XX-XX:XX with the time format
+  const remainingDays = daysOfWeek.slice(currentDayIndex); // Get all days from today till Sunday
+
+  const template = remainingDays.map((day) => {
+    return `${day}: XX:XX-XX:XX`;
   }).join('\n');
-  
+
   return template;
 };
 
@@ -78,6 +77,43 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
   }
 }
 
+export const handleTimeSlotInput = async (ctx: any) => {
+
+  const input = ctx.message.text;
+  const dayTimePairs = input.split(/\n/);
+
+  const daysMap: DaysMap = {
+    'Понедельник': 1,
+    'Вторник': 2,
+    'Среда': 3,
+    'Четверг': 4,
+    'Пятница': 5,
+    'Суббота': 6,
+    'Воскресенье': 7,
+  };
+
+  dayTimePairs.forEach(async (dayTimePair: string) => {
+    const [dayOfWeek, startTime, endTime] = dayTimePair.split(/:\s|-/);
+    if (dayOfWeek in daysMap) { // Check if the dayOfWeek exists in DaysMap
+      const startTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, startTime);
+      const endTimeMySQL = convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
+      await saveTimeIntervals(ctx, startTimeMySQL, endTimeMySQL);
+    } else {
+      ctx.reply(`Invalid day: ${dayOfWeek}`);
+    }
+  });
+  const options = [
+    ['Сделать план на неделю', 'Проверить занятые слоты']
+  ];
+
+  ctx.reply('Что теперь?', {
+    reply_markup: {
+      keyboard: options,
+      one_time_keyboard: true,
+      resize_keyboard: true
+    }
+  });
+};
 
 
 

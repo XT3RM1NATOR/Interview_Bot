@@ -35,7 +35,21 @@ export const case3 = async(ctx: any) => {
 
     await addUserToDatabase(ctx.from?.username || "Default", "admin", ctx.chat.id, ctx.session.tg_chat_id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
   }else {
-    ctx.reply("Ты успешно зарегистрировался");
+    const options = [
+      [`Зарегестрироваться на интервью`, `Посмотреть мои слоты`]
+    ];
+
+    ctx.reply("Ты успешно зарегистрировался! Что теперь?", {
+      reply_markup: {
+        keyboard: options,
+        one_time_keyboard: true, 
+        resize_keyboard: true
+      }
+    });
+    
+    ctx.session.role = "interviewee";
+    await updateSessionRole(ctx.session.id, "interviewee");
+
     await addUserToDatabase(ctx.from?.username || "Default", "interviewee", ctx.chat.id, ctx.session.tg_chat_id, ctx.session.timezone_hour, ctx.session.timezone_minute, ctx.session.description, true);
   }
 };
