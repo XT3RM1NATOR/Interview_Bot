@@ -24,10 +24,10 @@ export const convertToMySQLDateFormat = async (ctx: any, daysMap: DaysMap, dayOf
   const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   const targetDate = new Date(today);
   targetDate.setDate(today.getDate() + dayDifference);
-
+  console.log(session);
   const [hours, minutes] = time.split(':').map(Number);
   // Apply the UTC time with the additional offset
-  if(session!.timezone_hour && session!.timezone_minute){
+  if(session!.timezone_hour !== undefined && session!.timezone_minute !== undefined){
       const targetUTCTime = Date.UTC(
       targetDate.getFullYear(),
       targetDate.getMonth(),
@@ -38,13 +38,13 @@ export const convertToMySQLDateFormat = async (ctx: any, daysMap: DaysMap, dayOf
     // Create a new date object from the UTC time with the offset
     const targetDateWithOffset = new Date(targetUTCTime);
     const mysqlDateFormat = targetDateWithOffset.toISOString().slice(0, 19).replace('T', ' ');
-
     return mysqlDateFormat;
   }
 };
 
 export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endDateTimeStr: string) => {
   try{
+    console.log("i am trying to save it");
     const interval = 30 * 60 * 1000; // 30 minutes in milliseconds
     const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
     const startDateTime = new Date(startDateTimeStr);
@@ -100,6 +100,7 @@ export const handleTimeSlotInput = async (ctx: any) => {
     if (dayOfWeek in daysMap) { // Check if the dayOfWeek exists in DaysMap
       const startTimeMySQL = await convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, startTime);
       const endTimeMySQL = await convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
+      console.log("i am inside" + startTimeMySQL && endTimeMySQL);
       if(startTimeMySQL && endTimeMySQL) await saveTimeIntervals(ctx, startTimeMySQL, endTimeMySQL);
     } else {
       ctx.reply(`Invalid day: ${dayOfWeek}`);

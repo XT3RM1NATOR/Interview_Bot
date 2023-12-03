@@ -22,7 +22,7 @@ bot.hears('Админ', adminHandler);
 bot.hears('Сделать план на неделю', planHandler);
 bot.hears("Зарегестрироваться на интервью", interviewRegistrationHandler);
 bot.hears(/^(20\d{2}-\d{2}-\d{2})$/, getSlotsByDate);
-bot.hears("Посмотреть все слоты на неделю", getSlotsForWeek);
+bot.hears("Все слоты на неделю", getSlotsForWeek);
 bot.hears(/([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})(?:\s+([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})){0,6}/, timeSlotHandler);
 
 

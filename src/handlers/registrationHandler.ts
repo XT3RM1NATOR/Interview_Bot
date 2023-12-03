@@ -23,11 +23,9 @@ export const intervieweeHandler = async (ctx: any) => {
 };
 
 export const registrationHandler = async (ctx: any) => {
-  const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
+  const session = await SessionRepository.findOne({where: { chat_id: ctx.chat.id }});
+  if(!session || !session.stageId) checkServer(ctx);
   switch (session?.stageId) {
-    case undefined:
-      await checkServer(ctx);
-      break;
     case 1:
       await case1(ctx);
       break; 
@@ -81,10 +79,20 @@ export const startAction = async (ctx: any) => {
 
   if(user) {
     if(user.role === 'interviewee'){
-      ctx.reply("poop")
+      const options = [
+        [`Зарегестрироваться на интервью`, `Посмотреть мои слоты`]
+      ];
+
+      ctx.reply('Вы уже зарегестрированы что бы удалить аккаунт нажмите /deleteaccount', {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
     }else {
       const options = [
-        ['Сделать план на неделю', 'Проверить занятые слоты']
+        ['Сделать план на неделю', 'Посмотреть мои слоты']
       ];
 
       ctx.reply('Вы уже зарегестрированы что бы удалить аккаунт нажмите /deleteaccount', {
