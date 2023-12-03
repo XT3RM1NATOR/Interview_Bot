@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
 import { MyContext } from './config/session-config';
 import { deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
-import { planHandler, timeSlotHandler } from './handlers/interviewHandler';
+import { getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, timeSlotHandler } from './handlers/interviewHandler';
 import { adminHandler, intervieweeHandler, interviewerHandler, registrationHandler, startAction } from './handlers/registrationHandler';
 import { callbackQueryHandler } from "./service/registrationService";
 
@@ -21,9 +21,13 @@ bot.hears('Интервьюер', interviewerHandler);
 bot.hears('Собеседуемый', intervieweeHandler);
 bot.hears('Админ', adminHandler);
 bot.hears('Сделать план на неделю', planHandler);
+bot.hears("Зарегестрироваться на интервью", interviewRegistrationHandler);
+bot.hears(/^(20\d{2}-\d{2}-\d{2})$/, getSlotsByDate);
+bot.hears("Посмотреть все слоты на неделю", getSlotsForWeek);
+bot.hears(/([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})(?:\s+([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})){0,6}/, timeSlotHandler);
+
 
 bot.action(["accept_nodejs", "accept_react", "accept_js"], startAction);
-bot.hears(/([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})(?:\s+([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})){0,6}/, timeSlotHandler);
 
 bot.hears(/.*/, registrationHandler);
 

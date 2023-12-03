@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { InterviewerSlot } from "../entity/InterviewerSlot";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import { DaysMap } from "../type/type";
@@ -49,7 +48,7 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
     const startDateTime = new Date(startDateTimeStr);
     const endDateTime = new Date(endDateTimeStr);
 
-    let currentTime = new Date(startDateTime);
+    let currentTime = startDateTime;
 
     const slotsToSave: InterviewerSlot[] = [];
 
@@ -61,8 +60,8 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
       }
       const interviewer = await checkUser(ctx);
       const slot = new InterviewerSlot();
-      slot.start_time = format(currentTime, 'yyyy-MM-dd HH:mm:ss');
-      slot.end_time = format(nextTime, 'yyyy-MM-dd HH:mm:ss');
+      slot.start_time = currentTime;
+      slot.end_time = nextTime;
       if(interviewer) slot.interviewer_id = interviewer.id;
       // Add this slot to the array
       slotsToSave.push(slot);
