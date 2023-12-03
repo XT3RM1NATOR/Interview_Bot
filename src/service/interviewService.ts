@@ -64,6 +64,7 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
       slot.start_time = currentTime;
       slot.end_time = nextTime;
       slot.interviewer_username = ctx.message.from.username;
+      slot.chat_id = ctx.session.tg_chat_id;
 
       if(interviewer) slot.interviewer_id = interviewer.id;
       // Add this slot to the array

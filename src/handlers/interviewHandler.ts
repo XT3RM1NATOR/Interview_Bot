@@ -101,25 +101,30 @@ export const getSlotsByDate = async (ctx: any) => {
     const slots = await InterviewerSlotRepository.find({
       where: {
         start_time: Between(startDate, endDate),
+        chat_id: ctx.session.tg_chat_id
       },
     });
 
-    for (const slot of slots) {
-      const interviewer = await UserRepository.findOne({where: { id: slot.interviewer_id }});
-      const user = await UserRepository.findOne({where: { chat_id: ctx.session.chat_id }});
-
-      const startTime = slot.start_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      const endTime = slot.end_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-      const message = `ID: ${slot.id}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
-      
-      await ctx.reply(message, {
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: '✅', callback_data: `select_slot_${slot.id}_${user?.id}` }]
-          ]
-        }
-      });
+    if(slots){
+      for (const slot of slots) {
+        const interviewer = await UserRepository.findOne({where: { id: slot.interviewer_id }});
+        const user = await UserRepository.findOne({where: { chat_id: ctx.session.chat_id }});
+  
+        const startTime = slot.start_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const endTime = slot.end_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  
+        const message = `ID: ${slot.id}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
+        
+        await ctx.reply(message, {
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: '✅', callback_data: `select_slot_${slot.id}_${user?.id}` }]
+            ]
+          }
+        });
+      }
+    } else {
+      ctx.reply("В вашем чате на эту дату нет свободных слотов")
     }
   } catch (error) {
     console.error("Error fetching slots by date:", error);
