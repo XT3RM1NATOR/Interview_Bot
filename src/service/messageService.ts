@@ -5,7 +5,6 @@ import { addUserToDatabase, isValidGMTFormat } from '../service/registrationServ
 import { updateSessionDescription, updateSessionRole, updateSessionStage, updateSessionTimezone, updateSessionsForUser } from '../service/sessionService';
 
 export const case3 = async(ctx: any) => {
-
   await updateSessionDescription(ctx.session.id, ctx.message.text);
   await updateSessionStage(ctx.session.id, 0);
   const session = await SessionRepository.findOne({where: {id: ctx.session.id}});

@@ -180,7 +180,8 @@ export const generateIntervieweeSlots = async (ctx: Context, slots: InterviewerS
 
 export const generateInterviewerSlots = async (ctx: Context, slots: InterviewerSlot[], session: Session) => {
   for (const slot of slots) {
-    const interviewee = await UserRepository.findOne({where: { id: slot.interviewee_id }});
+    let interviewee;
+    if(slot.interviewee_id) interviewee = await UserRepository.findOne({where: { id: slot.interviewee_id }});
 
     const displayStartTime = new Date(slot.start_time);
     const displayEndTime = new Date(slot.end_time);
@@ -195,9 +196,9 @@ export const generateInterviewerSlots = async (ctx: Context, slots: InterviewerS
 
     let message;
     if(interviewee){
-      message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\n\n ---------------- \n\n СТАТУС РЕГИСТРАЦИИ: ✅ \n\n Био собеседуемого: ${interviewee!.description}\nСобеседуемый: @${interviewee!.username}`;
+      message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\n\n----------------\n\nСТАТУС РЕГИСТРАЦИИ: ✅ \n\nБио собеседуемого: ${interviewee!.description}\nСобеседуемый: @${interviewee!.username}`;
     }else{
-      message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\n\n ---------------- \n\n СТАТУС РЕГИСТРАЦИИ: 🚫`
+      message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\n\n----------------\n\nСТАТУС РЕГИСТРАЦИИ: 🚫`
     }
     
     await ctx.reply(message, {

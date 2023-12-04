@@ -3,7 +3,7 @@ import { Between, IsNull } from "typeorm";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
-import { generateIntervieweeSlots, generateSlots, getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
+import { generateIntervieweeSlots, generateInterviewerSlots, generateSlots, getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
 import { checkServer } from "../service/messageService";
 import { updateSessionStage } from "../service/sessionService";
 
@@ -187,12 +187,88 @@ export const viewUserSlots = async(ctx: any) => {
     const user = await UserRepository.findOne({where:{chat_id: session!.chat_id}})
 
     if(session!.role === "interviewee"){
+
+      const options = [
+        [`Домой`]
+      ];
+  
+      ctx.reply("Ваши слоты", {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true, 
+          resize_keyboard: true
+        }
+      });
+
       const slots = await InterviewerSlotRepository.find({where: {interviewee_id: user!.id}});
       await generateIntervieweeSlots(ctx, slots, session!, user!);
     }else{
-      const slots = await InterviewerSlotRepository.find({where: {interviewee_id: user!.id}});
-      await generateIntervieweeSlots(ctx, slots, session!, user!);
+
+      const options = [
+        [`Домой`]
+      ];
+  
+      ctx.reply("Ваши слоты", {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
+
+      const slots = await InterviewerSlotRepository.find({where: {interviewer_id: user!.id}});
+      await generateInterviewerSlots(ctx, slots, session!);
     }
   }
 }
+
+export const cancellSlotRegistrationCallbackHandler = async (ctx: any) => {
+  try{
+    const callbackMessageId = ctx.callbackQuery.message.message_id;
+    const chatId = ctx.callbackQuery.message.chat.id;
+    const callbackData = ctx.callbackQuery.data;
+    const regexPattern = /^cancel_slot_(\d+)_(\d+)$/;
+    const match = callbackData.match(regexPattern);
+
+    if (match) {
+      const slotId = parseInt(match[1], 10);
+      const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId }});
+
+      if(slot){
+        slot.interviewee_id = undefined;
+        await InterviewerSlotRepository.save(slot);
+      }
+      ctx.reply("Слот с айди: " + slotId + " был удален");
+      await ctx.telegram.deleteMessage(chatId, callbackMessageId);
+  }
+  }catch(err){
+    console.log(err);
+    ctx.reply("Произошла ошибка удаления регистрации");
+  }
+};
+
+export const cancellSlotCallbackHandler = async (ctx: any) => {
+  try{
+    const callbackMessageId = ctx.callbackQuery.message.message_id;
+    const chatId = ctx.callbackQuery.message.chat.id;
+    const callbackData = ctx.callbackQuery.data;
+
+    const regexPattern = /^cancel_slot_(\d+)$/;
+
+    const match = callbackData.match(regexPattern);
+
+    if (match) {
+      const slotId = parseInt(match[1], 10);
+      const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId }});
+
+      if(slot) await InterviewerSlotRepository.remove(slot);
+
+      ctx.reply("Слот с айди: " + slotId + " был удален");
+      await ctx.telegram.deleteMessage(chatId, callbackMessageId);
+  }
+  }catch(err){
+    console.log(err);
+    ctx.reply("Произошла ошибка удаления слота");
+  }
+};
 
