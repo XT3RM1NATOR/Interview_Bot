@@ -4,7 +4,7 @@ import { Session } from "../entity/Session";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
-import { DaysMap } from "../resource/customTypes/type";
+import { DaysMap } from "../resource/customTypes/DaysMap";
 import { checkUser } from "./registrationService";
 
 export const getTemplateForCurrentWeek = () => {
@@ -143,7 +143,7 @@ export const generateSlots = async (ctx: Context, slots: InterviewerSlot[], sess
     await ctx.reply(message, {
       reply_markup: {
         inline_keyboard: [
-          [{ text: '✅', callback_data: `select_slot_${slot.id}_${user?.id}` }]
+          [{ text: '✅', callback_data: `select_slot_${slot.id}_${user!.id}` }]
         ]
       }
     });

@@ -1,9 +1,3 @@
-import { Context } from 'telegraf';
-
-interface SessionData {
+export interface SessionData {
   id: number;
-}
-
-export interface MyContext extends Context {
-	session?: SessionData;
 }

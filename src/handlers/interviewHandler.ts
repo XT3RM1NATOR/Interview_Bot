@@ -1,5 +1,5 @@
 
-import { Between } from "typeorm";
+import { Between, IsNull } from "typeorm";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import SessionRepository from "../repository/SessionRepository";
 import { generateSlots, getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
@@ -124,7 +124,7 @@ export const getSlotsForWeek =  async (ctx: any) => {
   const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   try {
     if(check){
-      const slots = await InterviewerSlotRepository.find();
+      const slots = await InterviewerSlotRepository.find({ where: { interviewee_id: IsNull() } });
 
       if(slots){
         await generateSlots(ctx, slots, session!);
@@ -137,4 +137,20 @@ export const getSlotsForWeek =  async (ctx: any) => {
     ctx.reply("Произошла ошибка при получени слотов на неделю");
   }
 }
+
+export const slotCallbackHandler = async (ctx: any) => {
+  const callbackData = ctx.callbackQuery.data;
+  const regexPattern = /^select_slot_(\d+)_(\d+)$/;
+  const match = callbackData.match(regexPattern);
+  
+  if (match) {
+    const slotId = parseInt(match[1], 10);
+    const intervieweeId = parseInt(match[2], 10);
+
+    const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId } });
+    slot!.interviewee_id = intervieweeId;
+    await InterviewerSlotRepository.save(slot!);
+
+  }
+};
 
