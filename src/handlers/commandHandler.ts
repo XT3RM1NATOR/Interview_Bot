@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { Markup } from 'telegraf';
+import SessionRepository from '../repository/SessionRepository';
 import { checkServer } from '../service/messageService';
 import { deleteAccount } from '../service/registrationService';
 import { deleteSessionById, updateSessionStage } from '../service/sessionService';
@@ -52,6 +53,40 @@ export const startCommand = async (ctx: any) => {
     messagesToDelete.push(message3.message_id);
   }
 }
+
+export const returnUserToMain = async(ctx: any) => {
+  const check = await checkServer(ctx);
+  if(check){
+    const session = await SessionRepository.findOne({where: {id: ctx.session.id}})
+
+    if(session!.role === "interviewee"){
+      const options = [
+        [`Зарегестрироваться на интервью`, `Посмотреть мои слоты`]
+      ];
+    
+      ctx.reply("Вы вернулись обратно", {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
+    }else{
+      const options = [
+        ['Сделать план на неделю', 'Посмотреть мои слоты']
+      ];
+
+      ctx.reply('Вы вернулись обратно', {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
+    }
+  }
+}
+  
 
 export const clearMessagesToDelete = () => {
   messagesToDelete = [];

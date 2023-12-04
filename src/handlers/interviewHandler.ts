@@ -102,12 +102,25 @@ export const getSlotsByDate = async (ctx: any) => {
       const slots = await InterviewerSlotRepository.find({
         where: {
           start_time: Between(startDate, endDate),
-          chat_id: session!.tg_chat_id
+          chat_id: session!.tg_chat_id,
+          interviewee_id: IsNull()
         },
       });
 
       if(slots){
         await generateSlots(ctx, slots, session!);
+
+        const options = [
+          [`Домой`]
+        ];
+    
+        ctx.reply("Выберете слот", {
+          reply_markup: {
+            keyboard: options,
+            one_time_keyboard: true, 
+            resize_keyboard: true
+          }
+        });
       } else {
         ctx.reply("В вашем чате на эту дату нет свободных слотов");
       }
@@ -125,9 +138,21 @@ export const getSlotsForWeek =  async (ctx: any) => {
   try {
     if(check){
       const slots = await InterviewerSlotRepository.find({ where: { interviewee_id: IsNull() } });
-
+      console.log(slots);
       if(slots){
         await generateSlots(ctx, slots, session!);
+
+        const options = [
+          [`Домой`]
+        ];
+    
+        ctx.reply("Выберете слот", {
+          reply_markup: {
+            keyboard: options,
+            one_time_keyboard: true, 
+            resize_keyboard: true
+          }
+        });
       } else {
         ctx.reply("В вашем чате на эту дату нет свободных слотов")
       }
@@ -139,6 +164,7 @@ export const getSlotsForWeek =  async (ctx: any) => {
 }
 
 export const slotCallbackHandler = async (ctx: any) => {
+  console.log("just started")
   const callbackData = ctx.callbackQuery.data;
   const regexPattern = /^select_slot_(\d+)_(\d+)$/;
   const match = callbackData.match(regexPattern);
@@ -150,7 +176,7 @@ export const slotCallbackHandler = async (ctx: any) => {
     const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId } });
     slot!.interviewee_id = intervieweeId;
     await InterviewerSlotRepository.save(slot!);
-
+    console.log("i am done")
   }
 };
 
