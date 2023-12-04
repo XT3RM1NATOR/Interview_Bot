@@ -1,7 +1,7 @@
 import { User } from "../entity/User";
 import SessionRepository from "../repository/SessionRepository";
 import { case1, case2, case3, checkServer } from "../service/messageService";
-import { changeDescription, getAdmins } from '../service/registrationService';
+import { changeDescription, getAdmins, updateUserChat } from '../service/registrationService';
 import { saveNewSession, updateSessionInterviewer, updateSessionStage } from '../service/sessionService';
 import { clearMessagesToDelete, messagesToDelete } from "./commandHandler";
 
@@ -102,3 +102,15 @@ export const startAction = async (ctx: any) => {
 
   clearMessagesToDelete();
 };
+
+export const changeChatCallbackHandler = async (ctx:any) => {
+  const tg_chat_id = ctx.match[0] == "accept_nodejs_change" ? 1 : ctx.match[0] == "accept_react_change" ? 2 : ctx.match[0] == "accept_js_change" ? 3 : 0;
+  const session = await SessionRepository.findOne({ where: {id: ctx.session.id}})
+  await updateUserChat(session!.chat_id, tg_chat_id);
+
+  for (const messageId of messagesToDelete) {
+    await ctx.telegram.deleteMessage(ctx.chat.id, messageId).catch(console.error);
+  };
+
+  clearMessagesToDelete();
+}

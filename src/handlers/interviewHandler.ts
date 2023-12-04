@@ -168,7 +168,7 @@ export const getSlotsForWeek =  async (ctx: any) => {
 export const slotCallbackHandler = async (ctx: any) => {
   const callbackMessageId = ctx.callbackQuery.message.message_id;
   const chatId = ctx.callbackQuery.message.chat.id;
-  
+
   const callbackData = ctx.callbackQuery.data;
   const regexPattern = /^select_slot_(\d+)_(\d+)$/;
   const match = callbackData.match(regexPattern);

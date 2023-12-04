@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
-import { deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
+import { changeChatCommand, deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
 import { cancellSlotCallbackHandler, cancellSlotRegistrationCallbackHandler, getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, returnUserToMain, slotCallbackHandler, timeSlotHandler, viewUserSlots } from './handlers/interviewHandler';
-import { adminHandler, intervieweeHandler, interviewerHandler, registrationHandler, startAction } from './handlers/registrationHandler';
+import { adminHandler, changeChatCallbackHandler, intervieweeHandler, interviewerHandler, registrationHandler, startAction } from './handlers/registrationHandler';
 import { MyContext } from './resource/customTypes/MyContext';
 import { callbackQueryHandler } from "./service/registrationService";
 
@@ -15,8 +15,10 @@ bot.use(session());
 bot.command('start', startCommand);
 bot.command('deleteaccount', deleteAccountCommand);
 bot.command('newdescription', newDescriptionCommand);
+bot.command('changechat', changeChatCommand);
 
 bot.action(["accept_nodejs", "accept_react", "accept_js"], startAction);
+bot.action(/^accept_(react|nodejs|js)_change$/, changeChatCallbackHandler);
 bot.action(/^select_slot_\d+_\d+$/, slotCallbackHandler);
 bot.action(/^(accept|reject)_[0-9]+$/, callbackQueryHandler);
 bot.action(/^cancel_slot_\d+_\d+$/, cancellSlotRegistrationCallbackHandler)

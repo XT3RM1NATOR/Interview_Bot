@@ -186,3 +186,9 @@ export const convertStringToNumbers = (input: string): number[] | [number, numbe
     return undefined; // Returning undefined for invalid input
   }
 }
+
+export const updateUserChat = async (chat_id: number, tg_chat_id: number) => {
+  const user = await UserRepository.findOne({ where: {chat_id: chat_id}})
+  user!.tg_chat_id = tg_chat_id;
+  UserRepository.save(user!);
+}
