@@ -41,7 +41,7 @@ export const Confirmation = async (ctx: any, chat_id: number) => {
   try{
       
     const options = [
-      [`Сделать план на неделю`, `Проверить занятые слоты`]
+      [`Сделать план на неделю`, `Посмотреть мои слоты`]
     ];
       // Send the message to admins
     await ctx.telegram.sendMessage(chat_id, "Вы были одобрены! Что теперь?", {

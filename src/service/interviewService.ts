@@ -110,7 +110,7 @@ export const handleTimeSlotInput = async (ctx: any) => {
     }
   });
   const options = [
-    ['Сделать план на неделю', 'Проверить занятые слоты']
+    ['Сделать план на неделю', 'Посмотреть мои слоты']
   ];
 
   ctx.reply('Что теперь?', {
