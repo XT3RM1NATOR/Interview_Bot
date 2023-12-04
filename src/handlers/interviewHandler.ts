@@ -2,8 +2,7 @@
 import { Between } from "typeorm";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import SessionRepository from "../repository/SessionRepository";
-import UserRepository from "../repository/UserRepository";
-import { getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
+import { generateSlots, getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
 import { checkServer } from "../service/messageService";
 import { updateSessionStage } from "../service/sessionService";
 
@@ -52,14 +51,15 @@ export const timeSlotHandler = async (ctx: any) => {
       handleTimeSlotInput(ctx);
     }
   } else {
-    ctx.reply("Вы не авторизованы для команды или не прошли правильно");
+    ctx.reply("Вы не авторизованы для команды или сервер был перезагружен. Повторите сообщение");
   }
 };
 
 export const interviewRegistrationHandler = async (ctx: any) => {
+  const check = await checkServer(ctx);
   try {
-    // Fetch all interview slots
-    const slots = await InterviewerSlotRepository.find();
+    if(check){
+      const slots = await InterviewerSlotRepository.find();
 
     // Extract unique dates without time from start_time column
     const uniqueDates = Array.from(
@@ -82,7 +82,7 @@ export const interviewRegistrationHandler = async (ctx: any) => {
         resize_keyboard: true
       }
     });
-
+    }
   } catch (error) {
     // Handle errors
     console.error("Error fetching interview slots:", error);
@@ -91,39 +91,26 @@ export const interviewRegistrationHandler = async (ctx: any) => {
 };
 
 export const getSlotsByDate = async (ctx: any) => {
+  const check = await checkServer(ctx);
   const selectedDate = ctx.match[1];
   const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   try {
-    const startDate = new Date(`${selectedDate}T00:00:00`);
-    const endDate = new Date(`${selectedDate}T23:59:59`);
+    if(check){
+      const startDate = new Date(`${selectedDate}T00:00:00`);
+      const endDate = new Date(`${selectedDate}T23:59:59`);
 
-    const slots = await InterviewerSlotRepository.find({
-      where: {
-        start_time: Between(startDate, endDate),
-        chat_id: session!.tg_chat_id
-      },
-    });
+      const slots = await InterviewerSlotRepository.find({
+        where: {
+          start_time: Between(startDate, endDate),
+          chat_id: session!.tg_chat_id
+        },
+      });
 
-    if(slots){
-      for (const slot of slots) {
-        const interviewer = await UserRepository.findOne({where: { id: slot.interviewer_id }});
-        const user = await UserRepository.findOne({where: { chat_id: session!.chat_id }});
-  
-        const startTime = slot.start_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const endTime = slot.end_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  
-        const message = `ID: ${slot.id}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
-        
-        await ctx.reply(message, {
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: '✅', callback_data: `select_slot_${slot.id}_${user?.id}` }]
-            ]
-          }
-        });
+      if(slots){
+        await generateSlots(ctx, slots, session!);
+      } else {
+        ctx.reply("В вашем чате на эту дату нет свободных слотов");
       }
-    } else {
-      ctx.reply("В вашем чате на эту дату нет свободных слотов")
     }
   } catch (error) {
     console.error("Error fetching slots by date:", error);
@@ -133,34 +120,21 @@ export const getSlotsByDate = async (ctx: any) => {
 
 
 export const getSlotsForWeek =  async (ctx: any) => {
+  const check = await checkServer(ctx);
   const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   try {
+    if(check){
+      const slots = await InterviewerSlotRepository.find();
 
-    const slots = await InterviewerSlotRepository.find();
-
-    if(slots){
-      for (const slot of slots) {
-        const interviewer = await UserRepository.findOne({where: { id: slot.interviewer_id }});
-        const user = await UserRepository.findOne({where: { chat_id: session!.chat_id }});
-  
-        const startTime = slot.start_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const endTime = slot.end_time.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  
-        const message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
-        
-        await ctx.reply(message, {
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: '✅', callback_data: `select_slot_${slot.id}_${user?.id}` }]
-            ]
-          }
-        });
+      if(slots){
+        await generateSlots(ctx, slots, session!);
+      } else {
+        ctx.reply("В вашем чате на эту дату нет свободных слотов")
       }
-    } else {
-      ctx.reply("В вашем чате на эту дату нет свободных слотов")
     }
   } catch (error) {
     console.error("Error fetching slots by date:", error);
-    ctx.reply("There was an error fetching slots for the specified date.");
+    ctx.reply("Произошла ошибка при получени слотов на неделю");
   }
 }
+

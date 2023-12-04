@@ -76,7 +76,7 @@ export const case1 = async(ctx: any) => {
 
 export const checkServer = async (ctx: any) => {
   if(ctx.session === undefined){
-    ctx.reply("Сервер был перезагружен повторите сообщение");
+    ctx.reply("Сервер был перезагружен. Повторите сообщение");
     await updateSessionsForUser(ctx);
     return false;
   }
