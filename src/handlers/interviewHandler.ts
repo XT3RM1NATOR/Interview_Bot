@@ -2,7 +2,8 @@
 import { Between, IsNull } from "typeorm";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import SessionRepository from "../repository/SessionRepository";
-import { generateSlots, getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
+import UserRepository from "../repository/UserRepository";
+import { generateIntervieweeSlots, generateSlots, getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
 import { checkServer } from "../service/messageService";
 import { updateSessionStage } from "../service/sessionService";
 
@@ -164,7 +165,6 @@ export const getSlotsForWeek =  async (ctx: any) => {
 }
 
 export const slotCallbackHandler = async (ctx: any) => {
-  console.log("just started")
   const callbackData = ctx.callbackQuery.data;
   const regexPattern = /^select_slot_(\d+)_(\d+)$/;
   const match = callbackData.match(regexPattern);
@@ -176,7 +176,23 @@ export const slotCallbackHandler = async (ctx: any) => {
     const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId } });
     slot!.interviewee_id = intervieweeId;
     await InterviewerSlotRepository.save(slot!);
-    console.log("i am done")
   }
 };
+
+export const viewUserSlots = async(ctx: any) => {
+  const check = await checkServer(ctx);
+  if(check){
+
+    const session = await SessionRepository.findOne({where: {id: ctx.session.id}});
+    const user = await UserRepository.findOne({where:{chat_id: session!.chat_id}})
+
+    if(session!.role === "interviewee"){
+      const slots = await InterviewerSlotRepository.find({where: {interviewee_id: user!.id}});
+      await generateIntervieweeSlots(ctx, slots, session!, user!);
+    }else{
+      const slots = await InterviewerSlotRepository.find({where: {interviewee_id: user!.id}});
+      await generateIntervieweeSlots(ctx, slots, session!, user!);
+    }
+  }
+}
 

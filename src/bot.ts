@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
 import { deleteAccountCommand, newDescriptionCommand, returnUserToMain, startCommand } from "./handlers/commandHandler";
-import { getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, slotCallbackHandler, timeSlotHandler } from './handlers/interviewHandler';
+import { getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, slotCallbackHandler, timeSlotHandler, viewUserSlots } from './handlers/interviewHandler';
 import { adminHandler, intervieweeHandler, interviewerHandler, registrationHandler, startAction } from './handlers/registrationHandler';
 import { MyContext } from './resource/customTypes/MyContext';
 import { callbackQueryHandler } from "./service/registrationService";
@@ -27,6 +27,7 @@ bot.hears('Сделать план на неделю', planHandler);
 bot.hears("Зарегестрироваться на интервью", interviewRegistrationHandler);
 bot.hears("Все слоты на неделю", getSlotsForWeek);
 bot.hears("Домой", returnUserToMain);
+bot.hears("Посмотреть мои слоты", viewUserSlots);
 
 bot.hears(/^(20\d{2}-\d{2}-\d{2})$/, getSlotsByDate);
 bot.hears(/([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})(?:\s+([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})){0,6}/, timeSlotHandler);
