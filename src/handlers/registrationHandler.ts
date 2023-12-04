@@ -1,7 +1,7 @@
 import { User } from "../entity/User";
 import SessionRepository from "../repository/SessionRepository";
 import { case1, case2, case3, checkServer } from "../service/messageService";
-import { changeDescription, getAdmins, updateUserChat } from '../service/registrationService';
+import { acceptCallback, changeDescription, getAdmins, rejectCallback, updateUserChat } from '../service/registrationService';
 import { saveNewSession, updateSessionInterviewer, updateSessionStage } from '../service/sessionService';
 import { clearMessagesToDelete, messagesToDelete } from "./commandHandler";
 
@@ -114,3 +114,19 @@ export const changeChatCallbackHandler = async (ctx:any) => {
 
   clearMessagesToDelete();
 }
+
+export const newInterviewerCallbackHandler = async (ctx: any) => {
+  try {
+    const data = ctx.callbackQuery.data;
+    const userId = parseInt(data.split('_')[1]); // Extract the user ID from callback_data
+    console.log(userId);
+    if (data.startsWith('accept')) {
+      await acceptCallback(ctx, userId);
+    } else if (data.startsWith('reject')) {
+      await rejectCallback(ctx, userId);
+    }
+  } catch (err) {
+    console.log(err);
+    ctx.reply("Произошла ошибка при обновлении статуса интервьюера")
+  }
+};

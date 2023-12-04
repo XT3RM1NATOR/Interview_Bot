@@ -39,7 +39,6 @@ export const getAdmins = async() => {
 
 export const Confirmation = async (ctx: any, chat_id: number) => {
   try{
-      
     const options = [
       [`Сделать план на неделю`, `Посмотреть мои слоты`]
     ];
@@ -119,32 +118,23 @@ export const checkUser = async(ctx: any) => {
   return user;
 }
 
-export const callbackQueryHandler = async (ctx: any) => {
-  try {
-    const data = ctx.callbackQuery.data;
-    const userId = parseInt(data.split('_')[1]); // Extract the user ID from callback_data
-    console.log(userId);
-    if (data.startsWith('accept')) {
-      await acceptCallback(ctx, userId);
-    } else if (data.startsWith('reject')) {
-      await rejectCallback(ctx, userId);
-    }
-  } catch (err) {
-    console.log(err);
-  }
-};
-
 // Accept callback function
 export const acceptCallback = async (ctx: any, userId: number) => {
   try {
     const user = await UserRepository.findOne({ where: { id: userId } });
-    const session = await SessionRepository.findOne({where: {chat_id:user?.chat_id}})
-    if (user && session) {
-      updateSessionRole(session.id, "interviewer");
-      user.approved = true;
-      await UserRepository.save(user);
-      Confirmation(ctx, user.chat_id);
+    const session = await SessionRepository.findOne({where: {chat_id:user?.chat_id}});
+    if (user!.approved === undefined) {
+      updateSessionRole(session!.id, "interviewer");
+      user!.approved = true;
+      await UserRepository.save(user!);
+      Confirmation(ctx, user!.chat_id);
       ctx.reply("Юзер успешно одобрен!");
+    }else {
+      if(user!.approved){
+        ctx.reply("Интервьюер уже одобрен")
+      }else{
+        ctx.reply("Интервьюер уже отказан")
+      }
     }
   } catch (error) {
     console.log(error);
@@ -157,9 +147,15 @@ export const rejectCallback = async (ctx: any, userId: number) => {
   try {
     const user = await UserRepository.findOne({ where: { id: userId } });
 
-    if (user) {
-      Rejection(ctx, user.chat_id);
+    if (user!.approved === undefined){
+      Rejection(ctx, user!.chat_id);
       ctx.reply("Юзер успешно отказан!");
+    }else {
+      if(user!.approved){
+        ctx.reply("Интервьюер уже одобрен")
+      }else{
+        ctx.reply("Интервьюер уже отказан")
+      }
     }
   } catch (error) {
     console.log(error);
