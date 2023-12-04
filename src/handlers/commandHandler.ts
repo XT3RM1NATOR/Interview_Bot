@@ -1,8 +1,6 @@
 import dotenv from 'dotenv';
 import { Markup } from 'telegraf';
-import SessionRepository from '../repository/SessionRepository';
-import { checkServer } from '../service/messageService';
-import { deleteAccount } from '../service/registrationService';
+import { checkUser, deleteAccount } from '../service/registrationService';
 import { deleteSessionById, updateSessionStage } from '../service/sessionService';
 
 dotenv.config();
@@ -25,8 +23,35 @@ export const deleteAccountCommand = async (ctx: any) => {
 export let messagesToDelete: any[];
 
 export const startCommand = async (ctx: any) => {
-  const check = await checkServer(ctx);
-  if(check){
+  const user = await checkUser(ctx);
+
+  if(user) {
+    if(user.role === 'interviewee'){
+      const options = [
+        [`Зарегестрироваться на интервью`, `Посмотреть мои слоты`]
+      ];
+
+      ctx.reply('Вы уже зарегестрированы что бы удалить аккаунт нажмите /deleteaccount', {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
+    }else {
+      const options = [
+        ['Сделать план на неделю', 'Посмотреть мои слоты']
+      ];
+
+      ctx.reply('Вы уже зарегестрированы что бы удалить аккаунт нажмите /deleteaccount', {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
+    }
+  }else{
     messagesToDelete = [];
     const message1 = await ctx.replyWithHTML(
       `<a href="https://t.me/nodejs_ru">Node.js_ru</a>`,
@@ -53,40 +78,6 @@ export const startCommand = async (ctx: any) => {
     messagesToDelete.push(message3.message_id);
   }
 }
-
-export const returnUserToMain = async(ctx: any) => {
-  const check = await checkServer(ctx);
-  if(check){
-    const session = await SessionRepository.findOne({where: {id: ctx.session.id}})
-
-    if(session!.role === "interviewee"){
-      const options = [
-        [`Зарегестрироваться на интервью`, `Посмотреть мои слоты`]
-      ];
-    
-      ctx.reply("Вы вернулись обратно", {
-        reply_markup: {
-          keyboard: options,
-          one_time_keyboard: true,
-          resize_keyboard: true
-        }
-      });
-    }else{
-      const options = [
-        ['Сделать план на неделю', 'Посмотреть мои слоты']
-      ];
-
-      ctx.reply('Вы вернулись обратно', {
-        reply_markup: {
-          keyboard: options,
-          one_time_keyboard: true,
-          resize_keyboard: true
-        }
-      });
-    }
-  }
-}
-  
 
 export const clearMessagesToDelete = () => {
   messagesToDelete = [];

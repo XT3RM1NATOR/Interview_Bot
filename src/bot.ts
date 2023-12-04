@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
-import { deleteAccountCommand, newDescriptionCommand, returnUserToMain, startCommand } from "./handlers/commandHandler";
-import { cancellSlotCallbackHandler, cancellSlotRegistrationCallbackHandler, getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, slotCallbackHandler, timeSlotHandler, viewUserSlots } from './handlers/interviewHandler';
+import { deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
+import { cancellSlotCallbackHandler, cancellSlotRegistrationCallbackHandler, getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, returnUserToMain, slotCallbackHandler, timeSlotHandler, viewUserSlots } from './handlers/interviewHandler';
 import { adminHandler, intervieweeHandler, interviewerHandler, registrationHandler, startAction } from './handlers/registrationHandler';
 import { MyContext } from './resource/customTypes/MyContext';
 import { callbackQueryHandler } from "./service/registrationService";

@@ -57,37 +57,38 @@ export const timeSlotHandler = async (ctx: any) => {
 };
 
 export const interviewRegistrationHandler = async (ctx: any) => {
-  const check = await checkServer(ctx);
   try {
-    if(check){
+    const check = await checkServer(ctx);
+    const session = await SessionRepository.findOne({ where: { id: ctx.session.id }})
+    if(check && session?.role === "interviewee"){
       const slots = await InterviewerSlotRepository.find();
 
-    // Extract unique dates without time from start_time column
-    const uniqueDates = Array.from(
-      new Set(
-        slots.map(slot => {
-          const date = new Date(slot.start_time);
-          return date.toISOString().split("T")[0];
-        })
-      )
-    );
+      // Extract unique dates without time from start_time column
+      const uniqueDates = Array.from(
+        new Set(
+          slots.map(slot => {
+            const date = new Date(slot.start_time);
+            return date.toISOString().split("T")[0];
+          })
+        )
+      );
 
-    uniqueDates.push("Все слоты на неделю");
+      uniqueDates.push("Все слоты на неделю");
 
-    const options = uniqueDates.map(date => [{ text: date }]);
+      const options = uniqueDates.map(date => [{ text: date }]);
 
-    ctx.reply("Выберите подходящий вариант:", {
-      reply_markup: {
-        keyboard: options,
-        one_time_keyboard: true,
-        resize_keyboard: true
+      ctx.reply("Выберите подходящий вариант:", {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
       }
-    });
-    }
-  } catch (error) {
-    // Handle errors
-    console.error("Error fetching interview slots:", error);
-    ctx.reply("Произошла ошибка при загрузке слотов для интервью. Попробуйте позже");
+    } catch (error) {
+      // Handle errors
+      console.error("Error fetching interview slots:", error);
+      ctx.reply("Произошла ошибка при загрузке слотов для интервью. Попробуйте позже");
   }
 };
 
@@ -115,7 +116,7 @@ export const getSlotsByDate = async (ctx: any) => {
           [`Домой`]
         ];
     
-        ctx.reply("Выберете слот", {
+        ctx.reply("Выберите слот", {
           reply_markup: {
             keyboard: options,
             one_time_keyboard: true, 
@@ -147,7 +148,7 @@ export const getSlotsForWeek =  async (ctx: any) => {
           [`Домой`]
         ];
     
-        ctx.reply("Выберете слот", {
+        ctx.reply("Выберите слот", {
           reply_markup: {
             keyboard: options,
             one_time_keyboard: true, 
@@ -165,6 +166,9 @@ export const getSlotsForWeek =  async (ctx: any) => {
 }
 
 export const slotCallbackHandler = async (ctx: any) => {
+  const callbackMessageId = ctx.callbackQuery.message.message_id;
+  const chatId = ctx.callbackQuery.message.chat.id;
+  
   const callbackData = ctx.callbackQuery.data;
   const regexPattern = /^select_slot_(\d+)_(\d+)$/;
   const match = callbackData.match(regexPattern);
@@ -176,6 +180,8 @@ export const slotCallbackHandler = async (ctx: any) => {
     const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId } });
     slot!.interviewee_id = intervieweeId;
     await InterviewerSlotRepository.save(slot!);
+    ctx.reply("Слот с айди: " + slotId + " был удален");
+    await ctx.telegram.deleteMessage(chatId, callbackMessageId);
   }
 };
 
@@ -271,4 +277,37 @@ export const cancellSlotCallbackHandler = async (ctx: any) => {
     ctx.reply("Произошла ошибка удаления слота");
   }
 };
+
+export const returnUserToMain = async(ctx: any) => {
+  const check = await checkServer(ctx);
+  if(check){
+    const session = await SessionRepository.findOne({where: {id: ctx.session.id}})
+
+    if(session!.role === "interviewee"){
+      const options = [
+        [`Зарегестрироваться на интервью`, `Посмотреть мои слоты`]
+      ];
+    
+      ctx.reply("Вы вернулись обратно", {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
+    }else{
+      const options = [
+        ['Сделать план на неделю', 'Посмотреть мои слоты']
+      ];
+
+      ctx.reply('Вы вернулись обратно', {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
+    }
+  }
+}
 

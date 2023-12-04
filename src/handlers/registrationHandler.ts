@@ -1,7 +1,7 @@
 import { User } from "../entity/User";
 import SessionRepository from "../repository/SessionRepository";
 import { case1, case2, case3, checkServer } from "../service/messageService";
-import { changeDescription, checkUser, getAdmins } from '../service/registrationService';
+import { changeDescription, getAdmins } from '../service/registrationService';
 import { saveNewSession, updateSessionInterviewer, updateSessionStage } from '../service/sessionService';
 import { clearMessagesToDelete, messagesToDelete } from "./commandHandler";
 
@@ -75,57 +75,26 @@ export const sendMessagesToAdmins = async (ctx: any, user: User) => {
 };
 
 export const startAction = async (ctx: any) => {
-  const user = await checkUser(ctx);
+  const tg_chat_id = ctx.match[0] == "accept_nodejs" ? 1 : ctx.match[0] == "accept_react" ? 2 : ctx.match[0] == "accept_react" ? 3 : 0;
+  const session = await saveNewSession(ctx, ctx.chat.id, tg_chat_id);
 
-  if(user) {
-    if(user.role === 'interviewee'){
-      const options = [
-        [`Зарегестрироваться на интервью`, `Посмотреть мои слоты`]
-      ];
-
-      ctx.reply('Вы уже зарегестрированы что бы удалить аккаунт нажмите /deleteaccount', {
-        reply_markup: {
-          keyboard: options,
-          one_time_keyboard: true,
-          resize_keyboard: true
-        }
-      });
-    }else {
-      const options = [
-        ['Сделать план на неделю', 'Посмотреть мои слоты']
-      ];
-
-      ctx.reply('Вы уже зарегестрированы что бы удалить аккаунт нажмите /deleteaccount', {
-        reply_markup: {
-          keyboard: options,
-          one_time_keyboard: true,
-          resize_keyboard: true
-        }
-      });
-    }
-  }else{
-
-    const tg_chat_id = ctx.match[0] == "accept_nodejs" ? 1 : ctx.match[0] == "accept_react" ? 2 : ctx.match[0] == "accept_react" ? 3 : 0;
-    const session = await saveNewSession(ctx, ctx.chat.id, tg_chat_id);
-
-    if (session) {
-      ctx.session ??= {
-        id: session.id
-      };
-    }
-    
-    const options = [
-      ['Админ', 'Интервьюер', 'Собеседуемый']
-    ];
-
-    ctx.reply('Выбери подходящий вариант:', {
-      reply_markup: {
-        keyboard: options,
-        one_time_keyboard: true,
-        resize_keyboard: true
-      }
-    });
+  if (session) {
+    ctx.session ??= {
+      id: session.id
+    };
   }
+  
+  const options = [
+    ['Админ', 'Интервьюер', 'Собеседуемый']
+  ];
+
+  ctx.reply('Выбери подходящий вариант:', {
+    reply_markup: {
+      keyboard: options,
+      one_time_keyboard: true,
+      resize_keyboard: true
+    }
+  });
 
   for (const messageId of messagesToDelete) {
     await ctx.telegram.deleteMessage(ctx.chat.id, messageId).catch(console.error);
