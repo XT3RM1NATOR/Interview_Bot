@@ -8,6 +8,7 @@ import { MyContext } from './resource/customTypes/MyContext';
 dotenv.config();
 
 const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN!);
+//setInterval(checkUpcomingInterviews(), 30 * 60 * 1000);
 
 bot.use(session());
 

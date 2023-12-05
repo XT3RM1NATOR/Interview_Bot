@@ -211,6 +211,34 @@ export const generateInterviewerSlots = async (ctx: Context, slots: InterviewerS
   }
 }
 
+// export const checkUpcomingInterviews = async() => {
+//   // Get the current time
+//   const currentTime = new Date();
+
+//   // Calculate the time 30 minutes from now
+//   const thirtyMinutesLater = new Date(currentTime.getTime() + 30 * 60000); // 30 minutes in milliseconds
+
+//   // Fetch upcoming interviews from the database
+//   const upcomingInterviews = await InterviewerSlotRepository.find({
+//     where: {
+//         start_time: Between(currentTime, thirtyMinutesLater),
+//         interviewee_id: Not(IsNull())
+//     }
+//   });
+
+//   // Process each upcoming interview
+//   for (const interview of upcomingInterviews) {
+//     const interviewee = await UserRepository.findOne({ where: { id: interview.interviewee_id } });
+//     const interviewer = await UserRepository.findOne({ where: { id: interview.interviewer_id } });
+
+//     // Prepare reminder messages
+//     const userReminderMessage = `👨🏻‍💻 Приверт у тебя интервью менее чем через 30 минут.`;
+
+//     // Send reminders to respective users
+//     ctx.telegram.sendMessage(interviewee!.chat_id, userReminderMessage);
+//     ctx.telegram.sendMessage(interviewer!.chat_id, userReminderMessage);
+//   }
+// }
 
 
 
