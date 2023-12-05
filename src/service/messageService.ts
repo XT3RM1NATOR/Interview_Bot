@@ -15,7 +15,7 @@ export const case3 = async(ctx: any) => {
       ctx.reply("Регистрация не удалась");
     } else {
       ctx.reply("Ожидайте ответа админа");
-      logAction(ctx.from?.username || "Default", "Has sent an application for the interviewer role")
+      logAction(ctx.from?.username || "Default", "Has sent an application for the interviewer role");
       await sendMessagesToAdmins(ctx, user);
     }
   }else if(session!.role === "admin"){

@@ -1,4 +1,5 @@
 import { User } from "../entity/User";
+import { logAction } from "../logger/logger";
 import SessionRepository from "../repository/SessionRepository";
 import { case1, case2, case3, checkServer } from "../service/messageService";
 import { acceptCallback, changeDescription, changeGMT, getAdmins, rejectCallback, updateUserChat } from '../service/registrationService';
@@ -27,19 +28,24 @@ export const registrationHandler = async (ctx: any) => {
   if(!session || !session.stageId) checkServer(ctx);
   switch (session?.stageId) {
     case 1:
+      logAction(ctx.from?.username || "Default", `Has chosen his tier/type`);
       await case1(ctx);
       break; 
     case 2:
+      logAction(ctx.from?.username || "Default", `Has chosen his gmt timezone`);
       await case2(ctx);
       break;
     case 3:
+      logAction(ctx.from?.username || "Default", `Has chosen his description`);
       await case3(ctx);
       break;
     case 4:
+      logAction(ctx.from?.username || "Default", `Has chosen his new description`);
       await updateSessionStage(ctx.session.id, 0);
       await changeDescription(ctx, ctx.message.chat.id, ctx.message.text);
       break;
     case 7:
+      logAction(ctx.from?.username || "Default", `Has chosen his new gmt timezone`);
       await changeGMT(ctx, ctx.chat.id);
       break;
     default:

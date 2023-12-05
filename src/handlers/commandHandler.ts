@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { Markup } from 'telegraf';
+import { logAction } from '../logger/logger';
 import { MyContext } from '../resource/customTypes/MyContext';
 import { checkServer } from '../service/messageService';
 import { checkUser, deleteAccount } from '../service/registrationService';
@@ -8,7 +9,9 @@ import { deleteSessionById, updateSessionStage } from '../service/sessionService
 dotenv.config();
 
 export const newDescriptionCommand = async (ctx: any) => {
-  if (ctx.session) {
+  const check = await checkServer(ctx);
+  if (check) {
+    logAction(ctx.from?.username || "Default", "Has changed the description");
     ctx.reply("Кидай новое описание");
     await updateSessionStage(ctx.session.id, 4);
   } else {
@@ -17,9 +20,13 @@ export const newDescriptionCommand = async (ctx: any) => {
 };
 
 export const deleteAccountCommand = async (ctx: any) => {
-  const chatId = ctx.message.chat.id;
-  if (ctx.session?.id) await deleteSessionById(ctx.session.id);
-  await deleteAccount(ctx, chatId);
+  const check = await checkServer(ctx);
+  if(check){
+    logAction(ctx.from?.username || "Default", "Has deleted the account");
+    const chatId = ctx.message.chat.id;
+    if (ctx.session?.id) await deleteSessionById(ctx.session.id);
+    await deleteAccount(ctx, chatId);
+  }
 };
 
 export let messagesToDelete: any[];
@@ -28,6 +35,7 @@ export const startCommand = async (ctx: any) => {
   const user = await checkUser(ctx);
 
   if(user) {
+    logAction(ctx.from?.username || "Default", "Has to create an account while having one");
     if(user.role === 'interviewee'){
       const options = [
         [`Зарегестрироваться на интервью`, `Посмотреть мои слоты`]
@@ -54,6 +62,7 @@ export const startCommand = async (ctx: any) => {
       });
     }
   }else{
+    logAction(ctx.from?.username || "Default", "Has started the account");
     messagesToDelete = [];
     const message1 = await ctx.replyWithHTML(
       `<a href="https://t.me/nodejs_ru">Node.js_ru</a>`,
@@ -114,6 +123,7 @@ export const changeChatCommand = async (ctx: MyContext) => {
 export const changeGMTCommand = async (ctx: any) => {
   const check = await checkServer(ctx);
   if (check) {
+    logAction(ctx.from?.username || "Default", "Has changed the GMT Timezone");
     await updateSessionStage(ctx.session.id, 7);
     ctx.reply("Кидай новый часовой пояс");
   } else {

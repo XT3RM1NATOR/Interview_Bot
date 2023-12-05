@@ -1,5 +1,6 @@
 
-import { Between, IsNull } from "typeorm";
+import { Between } from "typeorm";
+import { logAction } from "../logger/logger";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
@@ -10,6 +11,7 @@ import { updateSessionStage } from "../service/sessionService";
 export const planHandler = async (ctx:any) => {
   const check = await checkServer(ctx);
   if(check){
+    logAction(ctx.from?.username || "Default", "Has initiated a week planner");
     const instructions = "Кидай в определенном формате ниже шаблон на эту неделю: (Время только ровное по 30 минут промежуткам, например 15:00 или 14:30)";
     ctx.reply(instructions);
 
@@ -24,6 +26,7 @@ export const timeSlotHandler = async (ctx: any) => {
   const check = await checkServer(ctx);
   const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   if (session!.stageId === 5 && check) {
+    logAction(ctx.from?.username || "Default", "Has sent the new week plan");
     await updateSessionStage(ctx.session.id, 0);
     const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
 
@@ -61,6 +64,7 @@ export const interviewRegistrationHandler = async (ctx: any) => {
     const check = await checkServer(ctx);
     const session = await SessionRepository.findOne({ where: { id: ctx.session.id }})
     if(check && session?.role === "interviewee"){
+      logAction(ctx.from?.username || "Default", "Has started choosing the slot date");
       const slots = await InterviewerSlotRepository.find();
 
       // Extract unique dates without time from start_time column
@@ -98,6 +102,7 @@ export const getSlotsByDate = async (ctx: any) => {
   const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   try {
     if(check){
+      logAction(ctx.from?.username || "Default", "Has chosen an exact date");
       const startDate = new Date(`${selectedDate}T00:00:00`);
       const endDate = new Date(`${selectedDate}T23:59:59`);
 
@@ -105,7 +110,6 @@ export const getSlotsByDate = async (ctx: any) => {
         where: {
           start_time: Between(startDate, endDate),
           chat_id: session!.tg_chat_id,
-          interviewee_id: IsNull()
         },
       });
 
@@ -139,8 +143,8 @@ export const getSlotsForWeek =  async (ctx: any) => {
   const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   try {
     if(check){
-      const slots = await InterviewerSlotRepository.find({ where: { interviewee_id: IsNull() } });
-      console.log(slots);
+      logAction(ctx.from?.username || "Default", "Has chosen to generate slots for the whole week");
+      const slots = await InterviewerSlotRepository.find();
       if(slots){
         await generateSlots(ctx, slots, session!);
 
@@ -177,6 +181,7 @@ export const slotCallbackHandler = async (ctx: any) => {
     if (match) {
       const slotId = parseInt(match[1], 10);
       const intervieweeId = parseInt(match[2], 10);
+      logAction(ctx.from?.username || "Default", `Has choosen the slot ${slotId}`);
 
       const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId } });
       const user = await UserRepository.findOne({ where: { id: slot!.interviewer_id } });
@@ -184,19 +189,21 @@ export const slotCallbackHandler = async (ctx: any) => {
 
       slot!.interviewee_id = intervieweeId;
       await InterviewerSlotRepository.save(slot!);
-      ctx.reply("Слот с айди: " + slotId + " был удален");
-      await ctx.telegram.deleteMessage(chatId, callbackMessageId);
+
+      const newText = `${ctx.callbackQuery.message.text}\n\nСТАТУС: ❌ЗАНЯТ❌`;
+      await ctx.telegram.editMessageText(chatId, callbackMessageId, null, newText);
+
+      await ctx.telegram.editMessageReplyMarkup(chatId, callbackMessageId, null);
     }
   }catch(err){
     console.log(err);
-    ctx.reply("Ошибка при регистрации на слот");
   }
 };
 
 export const viewUserSlots = async(ctx: any) => {
   const check = await checkServer(ctx);
   if(check){
-
+    logAction(ctx.from?.username || "Default", `Has choosen to view his registered slots`);
     const session = await SessionRepository.findOne({where: {id: ctx.session.id}});
     const user = await UserRepository.findOne({where:{chat_id: session!.chat_id}})
 
@@ -246,6 +253,7 @@ export const cancellSlotRegistrationCallbackHandler = async (ctx: any) => {
 
     if (match) {
       const slotId = parseInt(match[1], 10);
+      logAction(ctx.from?.username || "Default", `Has cancelled his registration for the slot ${slotId}`);
       const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId }});
       if(slot){
         await InterviewerSlotRepository.remove(slot);
@@ -267,10 +275,10 @@ export const cancellSlotRegistrationCallbackHandler = async (ctx: any) => {
 
 export const cancellSlotCallbackHandler = async (ctx: any) => {
   try{
+    logAction(ctx.from?.username || "Default", `Has cancelled his slot`);
     const callbackMessageId = ctx.callbackQuery.message.message_id;
     const chatId = ctx.callbackQuery.message.chat.id;
     const callbackData = ctx.callbackQuery.data;
-
     const regexPattern = /^cancel_slot_(\d+)$/;
 
     const match = callbackData.match(regexPattern);
@@ -293,6 +301,7 @@ export const cancellSlotCallbackHandler = async (ctx: any) => {
 export const returnUserToMain = async(ctx: any) => {
   const check = await checkServer(ctx);
   if(check){
+    logAction(ctx.from?.username || "Default", `Has gone to the main view`);
     const session = await SessionRepository.findOne({where: {id: ctx.session.id}})
 
     if(session!.role === "interviewee"){

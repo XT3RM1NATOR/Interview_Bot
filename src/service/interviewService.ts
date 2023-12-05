@@ -143,15 +143,20 @@ export const generateSlots = async (ctx: Context, slots: InterviewerSlot[], sess
 
     const start_date = new Date(displayStartTime.setHours(displayStartTime.getHours() + parseInt(process.env.SERVER_GMT_HOUR!), displayEndTime.getMinutes() + parseInt(process.env.SERVER_GMT_MINUTE!))).toISOString().split('T')[0];
 
-    const message = `ID: ${slot.id}\nДата: ${start_date}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
+    let message = `ID: ${slot.id}\nДата: ${start_date}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
     
-    await ctx.reply(message, {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: '✅', callback_data: `select_slot_${slot.id}_${user!.id}` }]
-        ]
-      }
-    });
+    if(slot.interviewee_id){
+      message += "\n\nСТАТУС: ❌ЗАНЯТ❌";
+      ctx.reply(message);
+    }else{
+      await ctx.reply(message, {
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '✅', callback_data: `select_slot_${slot.id}_${user!.id}` }]
+          ]
+        }
+      });
+    }
   }
 }
 
