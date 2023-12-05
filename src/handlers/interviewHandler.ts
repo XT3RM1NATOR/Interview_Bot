@@ -151,7 +151,7 @@ export const getSlotsForWeek =  async (ctx: any) => {
         ctx.reply("Выберите слот", {
           reply_markup: {
             keyboard: options,
-            one_time_keyboard: true, 
+            one_time_keyboard: true,
             resize_keyboard: true
           }
         });
@@ -166,22 +166,30 @@ export const getSlotsForWeek =  async (ctx: any) => {
 }
 
 export const slotCallbackHandler = async (ctx: any) => {
-  const callbackMessageId = ctx.callbackQuery.message.message_id;
-  const chatId = ctx.callbackQuery.message.chat.id;
+  try{
+    const callbackMessageId = ctx.callbackQuery.message.message_id;
+    const chatId = ctx.callbackQuery.message.chat.id;
 
-  const callbackData = ctx.callbackQuery.data;
-  const regexPattern = /^select_slot_(\d+)_(\d+)$/;
-  const match = callbackData.match(regexPattern);
-  
-  if (match) {
-    const slotId = parseInt(match[1], 10);
-    const intervieweeId = parseInt(match[2], 10);
+    const callbackData = ctx.callbackQuery.data;
+    const regexPattern = /^select_slot_(\d+)_(\d+)$/;
+    const match = callbackData.match(regexPattern);
+    
+    if (match) {
+      const slotId = parseInt(match[1], 10);
+      const intervieweeId = parseInt(match[2], 10);
 
-    const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId } });
-    slot!.interviewee_id = intervieweeId;
-    await InterviewerSlotRepository.save(slot!);
-    ctx.reply("Слот с айди: " + slotId + " был удален");
-    await ctx.telegram.deleteMessage(chatId, callbackMessageId);
+      const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId } });
+      const user = await UserRepository.findOne({ where: { id: slot!.interviewer_id } });
+      ctx.telegram.sendMessage(user?.chat_id, `🚀 Новый собеседуемый зарегестрировался 🚀`);
+
+      slot!.interviewee_id = intervieweeId;
+      await InterviewerSlotRepository.save(slot!);
+      ctx.reply("Слот с айди: " + slotId + " был удален");
+      await ctx.telegram.deleteMessage(chatId, callbackMessageId);
+    }
+  }catch(err){
+    console.log(err);
+    ctx.reply("Ошибка при регистрации на слот");
   }
 };
 
@@ -244,6 +252,10 @@ export const cancellSlotRegistrationCallbackHandler = async (ctx: any) => {
         slot.interviewee_id = undefined;
         await InterviewerSlotRepository.save(slot);
       }
+
+      const user = await UserRepository.findOne({ where: { id: slot!.interviewer_id } });
+      ctx.telegram.sendMessage(user!.chat_id, `❌ Собеседуемый отменил регистарцию. ❌`);
+
       ctx.reply("Слот с айди: " + slotId + " был удален");
       await ctx.telegram.deleteMessage(chatId, callbackMessageId);
   }

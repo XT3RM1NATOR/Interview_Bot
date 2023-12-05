@@ -123,7 +123,7 @@ export const acceptCallback = async (ctx: any, userId: number) => {
   try {
     const user = await UserRepository.findOne({ where: { id: userId } });
     const session = await SessionRepository.findOne({where: {chat_id:user?.chat_id}});
-    if (user!.approved === undefined) {
+    if (user!.approved === false) {
       updateSessionRole(session!.id, "interviewer");
       user!.approved = true;
       await UserRepository.save(user!);
@@ -132,8 +132,6 @@ export const acceptCallback = async (ctx: any, userId: number) => {
     }else {
       if(user!.approved){
         ctx.reply("Интервьюер уже одобрен")
-      }else{
-        ctx.reply("Интервьюер уже отказан")
       }
     }
   } catch (error) {
@@ -147,16 +145,8 @@ export const rejectCallback = async (ctx: any, userId: number) => {
   try {
     const user = await UserRepository.findOne({ where: { id: userId } });
 
-    if (user!.approved === undefined){
-      Rejection(ctx, user!.chat_id);
-      ctx.reply("Юзер успешно отказан!");
-    }else {
-      if(user!.approved){
-        ctx.reply("Интервьюер уже одобрен")
-      }else{
-        ctx.reply("Интервьюер уже отказан")
-      }
-    }
+    Rejection(ctx, user!.chat_id);
+    ctx.reply("Юзер успешно отказан!");
   } catch (error) {
     console.log(error);
     ctx.reply("Произошла ошибка при отказе юзера.");
