@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import { Context } from "telegraf";
 import { InterviewerSlot } from "../entity/InterviewerSlot";
 import { Session } from "../entity/Session";
@@ -7,6 +8,8 @@ import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
 import { DaysMap } from "../resource/customTypes/DaysMap";
 import { checkUser } from "./registrationService";
+
+dotenv.config();
 
 export const getTemplateForCurrentWeek = () => {
   const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
@@ -135,11 +138,12 @@ export const generateSlots = async (ctx: Context, slots: InterviewerSlot[], sess
       displayStartTime.setHours(displayStartTime.getHours() + session!.timezone_hour, displayStartTime.getMinutes() + session!.timezone_minute);
       displayEndTime.setHours(displayEndTime.getHours() + session!.timezone_hour, displayEndTime.getMinutes() + session!.timezone_minute);
     }
+    const startTime = displayStartTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit'});
+    const endTime = displayEndTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit'});
 
-    const startTime = displayStartTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const endTime = displayEndTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const start_date = new Date(displayStartTime.setHours(displayStartTime.getHours() + parseInt(process.env.SERVER_GMT_HOUR!), displayEndTime.getMinutes() + parseInt(process.env.SERVER_GMT_MINUTE!))).toISOString().split('T')[0];
 
-    const message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
+    const message = `ID: ${slot.id}\nДата: ${start_date}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
     
     await ctx.reply(message, {
       reply_markup: {
@@ -165,8 +169,9 @@ export const generateIntervieweeSlots = async (ctx: Context, slots: InterviewerS
 
     const startTime = displayStartTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const endTime = displayEndTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const start_date = new Date(displayStartTime.setHours(displayStartTime.getHours() + parseInt(process.env.SERVER_GMT_HOUR!), displayEndTime.getMinutes() + parseInt(process.env.SERVER_GMT_MINUTE!))).toISOString().split('T')[0];;
 
-    const message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
+    const message = `ID: ${slot.id}\nДата: ${start_date}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
     
     await ctx.reply(message, {
       reply_markup: {
@@ -193,12 +198,12 @@ export const generateInterviewerSlots = async (ctx: Context, slots: InterviewerS
 
     const startTime = displayStartTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const endTime = displayEndTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
+    const start_date = new Date(displayStartTime.setHours(displayStartTime.getHours() + parseInt(process.env.SERVER_GMT_HOUR!), displayEndTime.getMinutes() + parseInt(process.env.SERVER_GMT_MINUTE!))).toISOString().split('T')[0];
     let message;
     if(interviewee){
-      message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\n\n----------------\n\nСТАТУС РЕГИСТРАЦИИ: ✅ \n\nБио собеседуемого: ${interviewee!.description}\nСобеседуемый: @${interviewee!.username}`;
+      message = `ID: ${slot.id}\nДата: ${start_date}\nНачало: ${startTime}\nКонец: ${endTime}\n\n----------------\n\nСТАТУС РЕГИСТРАЦИИ: ✅ \n\nБио собеседуемого: ${interviewee!.description}\nСобеседуемый: @${interviewee!.username}`;
     }else{
-      message = `ID: ${slot.id}\nДата: ${slot.start_time.toISOString().slice(0, 10)}\nНачало: ${startTime}\nКонец: ${endTime}\n\n----------------\n\nСТАТУС РЕГИСТРАЦИИ: 🚫`
+      message = `ID: ${slot.id}\nДата: ${start_date}\nНачало: ${startTime}\nКонец: ${endTime}\n\n----------------\n\nСТАТУС РЕГИСТРАЦИИ: 🚫`
     }
     
     await ctx.reply(message, {
@@ -239,6 +244,8 @@ export const generateInterviewerSlots = async (ctx: Context, slots: InterviewerS
 //     ctx.telegram.sendMessage(interviewer!.chat_id, userReminderMessage);
 //   }
 // }
+
+
 
 
 

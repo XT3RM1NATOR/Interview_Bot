@@ -12,7 +12,7 @@ export const newDescriptionCommand = async (ctx: any) => {
     ctx.reply("Кидай новое описание");
     await updateSessionStage(ctx.session.id, 4);
   } else {
-    ctx.reply("Для начала нажми /start");
+    ctx.reply("Для начала нажми /start или повтори комманду");
   }
 };
 
@@ -108,6 +108,16 @@ export const changeChatCommand = async (ctx: MyContext) => {
     //   ])
     // );
     // messagesToDelete.push(message3.message_id);
+  }
+}
+
+export const changeGMTCommand = async (ctx: any) => {
+  const check = await checkServer(ctx);
+  if (check) {
+    await updateSessionStage(ctx.session.id, 7);
+    ctx.reply("Кидай новый часовой пояс");
+  } else {
+    ctx.reply("Для начала нажми /start или повтори комманду");
   }
 }
 

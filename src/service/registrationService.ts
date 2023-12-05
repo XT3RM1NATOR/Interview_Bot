@@ -1,7 +1,7 @@
 import { User } from "../entity/User";
 import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
-import { updateSessionRole } from "./sessionService";
+import { updateSessionRole, updateSessionStage, updateSessionTimezone } from "./sessionService";
 
 export const addUserToDatabase = async(username: string, role: string, chat_id: number, tg_chat_id: number,  timezone_hour?: number, timezone_minute?: number, description?: string, approved?: boolean) => {
   try {
@@ -177,4 +177,35 @@ export const updateUserChat = async (chat_id: number, tg_chat_id: number) => {
   const user = await UserRepository.findOne({ where: {chat_id: chat_id}})
   user!.tg_chat_id = tg_chat_id;
   UserRepository.save(user!);
+}
+
+export const changeGMT = async (ctx: any, chatId: number) => {
+  try {
+    const user = await UserRepository.findOne({ where: { chat_id: chatId } });
+    if (user && isValidGMTFormat(ctx.message.text)) {
+      await updateSessionTimezone(ctx.session.id, ctx.message.text);
+      await changeUserTimezone(ctx);
+      await updateSessionStage(ctx.session.id, 0);
+      await UserRepository.save(user); 
+      ctx.reply("Часовой пояс успешно обновлен");
+
+    } else {
+      ctx.reply("Ты еще не зарегистрировался или неправильный формат");
+    }
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const changeUserTimezone = async (ctx: any) => {
+  const user = await UserRepository.findOne({where: {chat_id: ctx.message.chat.id}});
+  const timezone = convertStringToNumbers(ctx.message.text);
+
+  if(timezone){
+    user!.timezone_hour = timezone[0];
+    user!.timezone_minute = timezone[1] || 0;
+
+    UserRepository.save(user!);
+  }
 }

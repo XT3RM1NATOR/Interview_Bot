@@ -1,7 +1,7 @@
 import { User } from "../entity/User";
 import SessionRepository from "../repository/SessionRepository";
 import { case1, case2, case3, checkServer } from "../service/messageService";
-import { acceptCallback, changeDescription, getAdmins, rejectCallback, updateUserChat } from '../service/registrationService';
+import { acceptCallback, changeDescription, changeGMT, getAdmins, rejectCallback, updateUserChat } from '../service/registrationService';
 import { saveNewSession, updateSessionInterviewer, updateSessionStage } from '../service/sessionService';
 import { clearMessagesToDelete, messagesToDelete } from "./commandHandler";
 
@@ -38,6 +38,9 @@ export const registrationHandler = async (ctx: any) => {
     case 4:
       await updateSessionStage(ctx.session.id, 0);
       await changeDescription(ctx, ctx.message.chat.id, ctx.message.text);
+      break;
+    case 7:
+      await changeGMT(ctx, ctx.chat.id);
       break;
     default:
       ctx.reply(`Команда пока не распознана`);

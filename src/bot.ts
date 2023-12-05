@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
-import { changeChatCommand, deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
+import { changeChatCommand, changeGMTCommand, deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
 import { cancellSlotCallbackHandler, cancellSlotRegistrationCallbackHandler, getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, returnUserToMain, slotCallbackHandler, timeSlotHandler, viewUserSlots } from './handlers/interviewHandler';
 import { adminHandler, changeChatCallbackHandler, intervieweeHandler, interviewerHandler, newInterviewerCallbackHandler, registrationHandler, startAction } from './handlers/registrationHandler';
 import { MyContext } from './resource/customTypes/MyContext';
@@ -16,6 +16,7 @@ bot.command('start', startCommand);
 bot.command('deleteaccount', deleteAccountCommand);
 bot.command('newdescription', newDescriptionCommand);
 bot.command('changechat', changeChatCommand);
+bot.command('changegmt', changeGMTCommand)
 
 bot.action(["accept_nodejs", "accept_react", "accept_js"], startAction);
 bot.action(/^accept_(react|nodejs|js)_change$/, changeChatCallbackHandler);
