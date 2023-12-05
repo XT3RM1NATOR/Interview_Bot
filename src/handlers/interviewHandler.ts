@@ -247,8 +247,8 @@ export const cancellSlotRegistrationCallbackHandler = async (ctx: any) => {
     if (match) {
       const slotId = parseInt(match[1], 10);
       const slot = await InterviewerSlotRepository.findOne({ where: { id: slotId }});
-
       if(slot){
+        await InterviewerSlotRepository.remove(slot);
         slot.interviewee_id = undefined;
         await InterviewerSlotRepository.save(slot);
       }
