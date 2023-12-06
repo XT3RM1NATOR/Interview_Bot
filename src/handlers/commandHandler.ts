@@ -51,7 +51,7 @@ export const startCommand = async (ctx: any) => {
     }else if(user.role === 'admin'){
       const options = [
         ['Сделать план на неделю', 'Посмотреть мои слоты', 'Сделать объявление'],
-        ['Все слоты']
+        ['Все слоты на неделю']
       ];
 
       ctx.reply('Вы уже зарегестрированы что бы удалить аккаунт нажмите /deleteaccount', {
