@@ -62,15 +62,24 @@ export const timeSlotHandler = async (ctx: any) => {
 export const interviewRegistrationHandler = async (ctx: any) => {
   try {
     const check = await checkServer(ctx);
-    const session = await SessionRepository.findOne({ where: { id: ctx.session.id }})
-    if(check && session?.role === "interviewee"){
+    const session = await SessionRepository.findOne({ where: { id: ctx.session.id } });
+    if (check && session!.role === "interviewee") {
       logAction(ctx.from?.username || "Default", "Has started choosing the slot date");
       const slots = await InterviewerSlotRepository.find();
 
-      // Extract unique dates without time from start_time column
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      // Filter slots for today, yesterday, and future dates
+      const filteredSlots = slots.filter(slot => {
+        const slotDate = new Date(slot.start_time).setHours(0, 0, 0, 0);
+        return slotDate >= yesterday.getTime(); // Filter dates equal to or after yesterday
+      });
+
       const uniqueDates = Array.from(
         new Set(
-          slots.map(slot => {
+          filteredSlots.map(slot => {
             const date = new Date(slot.start_time);
             return date.toISOString().split("T")[0];
           })
@@ -88,13 +97,14 @@ export const interviewRegistrationHandler = async (ctx: any) => {
           resize_keyboard: true
         }
       });
-      }
-    } catch (error) {
-      // Handle errors
-      console.error("Error fetching interview slots:", error);
-      ctx.reply("Произошла ошибка при загрузке слотов для интервью. Попробуйте позже");
+    }
+  } catch (error) {
+    // Handle errors
+    console.error("Error fetching interview slots:", error);
+    ctx.reply("Произошла ошибка при загрузке слотов для интервью. Попробуйте позже");
   }
 };
+
 
 export const getSlotsByDate = async (ctx: any) => {
   const check = await checkServer(ctx);
