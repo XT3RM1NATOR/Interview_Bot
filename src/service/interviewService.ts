@@ -119,17 +119,34 @@ export const handleTimeSlotInput = async (ctx: any) => {
       ctx.reply(`Invalid day: ${dayOfWeek}`);
     }
   });
-  const options = [
-    ['Сделать план на неделю', 'Посмотреть мои слоты']
-  ];
+  const session = await SessionRepository.findOne( { where: { id: ctx.session.id } } )
 
-  ctx.reply('Что теперь?', {
-    reply_markup: {
-      keyboard: options,
-      one_time_keyboard: true,
-      resize_keyboard: true
-    }
-  });
+  if(session?.role === "admin"){
+    const options = [
+      ['Сделать план на неделю', 'Посмотреть мои слоты', 'Cделать объявление'],
+      ['Все слоты на неделю']
+    ];
+  
+    ctx.reply('Что теперь?', {
+      reply_markup: {
+        keyboard: options,
+        one_time_keyboard: true,
+        resize_keyboard: true
+      }
+    });
+  }else{
+    const options = [
+      ['Сделать план на неделю', 'Посмотреть мои слоты']
+    ];
+  
+    ctx.reply('Что теперь?', {
+      reply_markup: {
+        keyboard: options,
+        one_time_keyboard: true,
+        resize_keyboard: true
+      }
+    });
+  }
 };
 
 export const generateSlots = async (ctx: Context, slots: InterviewerSlot[], session: Session) => {
@@ -238,11 +255,11 @@ export const deleteExpiredSlots = async () => {
 
     if (expiredSlots.length > 0) {
       // Delete expired slots from the database
-      await InterviewerSlotRepository.remove(expiredSlots);
-      console.log("Expired slots have been deleted:", expiredSlots);
+      const poo = await InterviewerSlotRepository.remove(expiredSlots);
+      console.log("Expired slots have been deleted:", poo);
     }
   } catch (error) {
-    console.error("Error deleting expired slots:", error);
+    //
   }
 
   // Schedule the function to run again after a certain interval (e.g., every hour)
