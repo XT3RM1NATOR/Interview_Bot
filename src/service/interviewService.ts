@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import { Context } from "telegraf";
+import { LessThan } from 'typeorm';
 import { InterviewerSlot } from "../entity/InterviewerSlot";
 import { Session } from "../entity/Session";
 import { User } from "../entity/User";
@@ -82,13 +83,12 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
         slot.interviewer_username = ctx.message.from.username;
         slot.chat_id = session.tg_chat_id;
         slot.interviewer_id = interviewer!.id;
-        
+
         slotsToSave.push(slot);
       }
 
       currentTime = nextTime;
     }
-    console.log(slotsToSave);
     await InterviewerSlotRepository.save(slotsToSave);
   }catch(err){
     console.log(err);
@@ -227,36 +227,27 @@ export const generateInterviewerSlots = async (ctx: Context, slots: InterviewerS
   }
 }
 
-// export const checkUpcomingInterviews = async() => {
-//   // Get the current time
-//   const currentTime = new Date();
+export const deleteExpiredSlots = async () => {
+  try {
+    const currentDate = new Date(); // Current date and time
+    console.log(currentDate.toISOString())
+    // Find and delete slots where the end time has passed
+    const expiredSlots = await InterviewerSlotRepository.find({
+      where: { end_time: LessThan(currentDate) }
+    });
 
-//   // Calculate the time 30 minutes from now
-//   const thirtyMinutesLater = new Date(currentTime.getTime() + 30 * 60000); // 30 minutes in milliseconds
+    if (expiredSlots.length > 0) {
+      // Delete expired slots from the database
+      await InterviewerSlotRepository.remove(expiredSlots);
+      console.log("Expired slots have been deleted:", expiredSlots);
+    }
+  } catch (error) {
+    console.error("Error deleting expired slots:", error);
+  }
 
-//   // Fetch upcoming interviews from the database
-//   const upcomingInterviews = await InterviewerSlotRepository.find({
-//     where: {
-//         start_time: Between(currentTime, thirtyMinutesLater),
-//         interviewee_id: Not(IsNull())
-//     }
-//   });
-
-//   // Process each upcoming interview
-//   for (const interview of upcomingInterviews) {
-//     const interviewee = await UserRepository.findOne({ where: { id: interview.interviewee_id } });
-//     const interviewer = await UserRepository.findOne({ where: { id: interview.interviewer_id } });
-
-//     // Prepare reminder messages
-//     const userReminderMessage = `👨🏻‍💻 Приверт у тебя интервью менее чем через 30 минут.`;
-
-//     // Send reminders to respective users
-//     ctx.telegram.sendMessage(interviewee!.chat_id, userReminderMessage);
-//     ctx.telegram.sendMessage(interviewer!.chat_id, userReminderMessage);
-//   }
-// }
-
-
+  // Schedule the function to run again after a certain interval (e.g., every hour)
+  setTimeout(deleteExpiredSlots, 1000 * 10);
+};
 
 
 

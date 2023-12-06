@@ -44,5 +44,5 @@ bot.catch((err: any, ctx: Context) => {
   console.error(`Error for ${ctx.updateType}`, err);
 });
 
-bot.launch();
+bot.launch()
 
