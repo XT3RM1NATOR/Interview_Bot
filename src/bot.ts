@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
 import { changeChatCommand, changeGMTCommand, deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
 import { cancellSlotCallbackHandler, cancellSlotRegistrationCallbackHandler, getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, returnUserToMain, slotCallbackHandler, timeSlotHandler, viewUserSlots } from './handlers/interviewHandler';
+import { announcementHandler } from './handlers/messageHandler';
 import { adminHandler, changeChatCallbackHandler, intervieweeHandler, interviewerHandler, newInterviewerCallbackHandler, registrationHandler, startAction } from './handlers/registrationHandler';
 import { MyContext } from './resource/customTypes/MyContext';
 
@@ -33,6 +34,7 @@ bot.hears("Зарегестрироваться на интервью", intervie
 bot.hears("Все слоты на неделю", getSlotsForWeek);
 bot.hears("Домой", returnUserToMain);
 bot.hears("Посмотреть мои слоты", viewUserSlots);
+bot.hears("Сделать объявление", announcementHandler);
 
 bot.hears(/^(20\d{2}-\d{2}-\d{2})$/, getSlotsByDate);
 bot.hears(/([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})(?:\s+([А-Яа-я]+: \d{2}:\d{2}-\d{2}:\d{2})){0,6}/, timeSlotHandler);
