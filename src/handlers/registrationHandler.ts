@@ -26,7 +26,7 @@ export const intervieweeHandler = async (ctx: any) => {
 export const registrationHandler = async (ctx: any) => {
   const check = await checkServer(ctx);
   if(check){
-    const session = await SessionRepository.findOne({where: { chat_id: ctx.chat.id }});
+    const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
     switch (session?.stageId) {
       case 1:
         logAction(ctx.from?.username || "Default", `Has chosen his tier/type`);
