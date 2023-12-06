@@ -1,6 +1,7 @@
 import { sendMessagesToAdmins } from "../handlers/registrationHandler";
 import { logAction } from '../logger/logger';
 import SessionRepository from "../repository/SessionRepository";
+import UserRepository from "../repository/UserRepository";
 import { addUserToDatabase, isValidGMTFormat } from '../service/registrationService';
 import { updateSessionDescription, updateSessionRole, updateSessionStage, updateSessionTimezone, updateSessionsForUser } from '../service/sessionService';
 
@@ -80,4 +81,32 @@ export const checkServer = async (ctx: any) => {
     return false;
   }
   return true
+};
+
+export const broadcastMessageToAllUsers = async (ctx: any) => {
+  try {
+    const users = await UserRepository.find();
+    const message = ctx.message.text;
+    console.log(message)
+    for (const user of users) {
+      if(user.chat_id = ctx.chat.id) continue;
+      await ctx.telegram.sendMessage(user.chat_id, message); // Send the message to each user
+    }
+
+    const options = [
+      [`Сделать план на неделю`, `Посмотреть мои слоты`, `Сделать объявление`]
+    ];
+
+    ctx.reply("Сообщение отправлено всем юзерам", {
+      reply_markup: {
+        keyboard: options,
+        one_time_keyboard: true,
+        resize_keyboard: true
+      }
+    });
+
+    console.log("Message broadcasted to all users successfully.");
+  } catch (error) {
+    console.error("Error broadcasting message:", error);
+  }
 };
