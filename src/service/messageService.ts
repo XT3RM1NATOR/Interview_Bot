@@ -89,7 +89,7 @@ export const broadcastMessageToAllUsers = async (ctx: any) => {
     const message = ctx.message.text;
     console.log(message)
     for (const user of users) {
-      if(user.chat_id = ctx.chat.id) continue;
+      if(user.chat_id === ctx.chat.id) continue;
       await ctx.telegram.sendMessage(user.chat_id, message); // Send the message to each user
     }
 

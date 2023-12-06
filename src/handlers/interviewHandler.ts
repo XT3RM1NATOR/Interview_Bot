@@ -13,7 +13,17 @@ export const planHandler = async (ctx:any) => {
   if(check){
     logAction(ctx.from?.username || "Default", "Has initiated a week planner");
     const instructions = "Кидай в определенном формате ниже шаблон на эту неделю: (Время только ровное по 30 минут промежуткам, например 15:00 или 14:30)";
-    ctx.reply(instructions);
+    const options = [
+      [`Домой`]
+    ];
+
+    ctx.reply(instructions, {
+      reply_markup: {
+        keyboard: options,
+        one_time_keyboard: true,
+        resize_keyboard: true
+      }
+    });
 
     await updateSessionStage(ctx.session.id, 5);
 
@@ -328,7 +338,7 @@ export const returnUserToMain = async(ctx: any) => {
       });
     }else if(session!.role === "admin"){
       const options = [
-        ['Сделать план на неделю', 'Посмотреть мои слоты', "Cделать объявление"]
+        ['Сделать план на неделю', 'Посмотреть мои слоты', 'Cделать объявление']
       ];
 
       ctx.reply('Вы вернулись обратно', {
