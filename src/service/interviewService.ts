@@ -12,17 +12,22 @@ import { checkUser } from "./registrationService";
 dotenv.config();
 
 export const getTemplateForCurrentWeek = () => {
-  const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+  const daysOfWeek = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
   const today = new Date();
   const currentDayIndex = today.getDay(); // 0 for Sunday, 1 for Monday, and so on
-  const remainingDays = daysOfWeek.slice(currentDayIndex); // Get all days from today till Sunday
+  const daysInWeek = 7;
 
-  const template = remainingDays.map((day) => {
+  const remainingDays = daysOfWeek.slice(currentDayIndex).concat(daysOfWeek.slice(0, currentDayIndex));
+  const daysLeftInWeek = daysInWeek - (currentDayIndex === 0 ? 0 : currentDayIndex - 1);
+
+  const template = remainingDays.slice(0, daysLeftInWeek).map((day) => {
     return `${day}: XX:XX-XX:XX`;
   }).join('\n');
 
   return template;
 };
+
+
 
 export const convertToMySQLDateFormat = async (ctx: any, daysMap: DaysMap, dayOfWeek: keyof DaysMap, time: string) => {
   const today = new Date();
@@ -31,7 +36,6 @@ export const convertToMySQLDateFormat = async (ctx: any, daysMap: DaysMap, dayOf
   const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   const targetDate = new Date(today);
   targetDate.setDate(today.getDate() + dayDifference);
-  console.log(session);
   const [hours, minutes] = time.split(':').map(Number);
   // Apply the UTC time with the additional offset
   if(session!.timezone_hour !== undefined && session!.timezone_minute !== undefined){
@@ -51,7 +55,6 @@ export const convertToMySQLDateFormat = async (ctx: any, daysMap: DaysMap, dayOf
 
 export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endDateTimeStr: string) => {
   try{
-    console.log("i am trying to save it");
     const interval = 30 * 60 * 1000; // 30 minutes in milliseconds
     const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
     const startDateTime = new Date(startDateTimeStr);
@@ -63,24 +66,29 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
 
     while (currentTime < endDateTime) {
       const nextTime = new Date(currentTime.getTime() + interval);
-
       if (nextTime > endDateTime) {
         nextTime.setTime(endDateTime.getTime());
       }
       const interviewer = await checkUser(ctx);
       const slot = new InterviewerSlot();
-      if(session){
+      const check_slot = await InterviewerSlotRepository.findOne({where: {
+        start_time: currentTime,
+        interviewer_id: interviewer!.id
+      }})
+
+      if(session && !check_slot){
         slot.start_time = currentTime;
         slot.end_time = nextTime;
         slot.interviewer_username = ctx.message.from.username;
         slot.chat_id = session.tg_chat_id;
+        slot.interviewer_id = interviewer!.id;
+        
+        slotsToSave.push(slot);
       }
-      if(interviewer) slot.interviewer_id = interviewer.id;
-      // Add this slot to the array
-      slotsToSave.push(slot);
 
       currentTime = nextTime;
     }
+    console.log(slotsToSave);
     await InterviewerSlotRepository.save(slotsToSave);
   }catch(err){
     console.log(err);
@@ -101,13 +109,11 @@ export const handleTimeSlotInput = async (ctx: any) => {
     'Суббота': 6,
     'Воскресенье': 7,
   };
-
   dayTimePairs.forEach(async (dayTimePair: string) => {
     const [dayOfWeek, startTime, endTime] = dayTimePair.split(/:\s|-/);
     if (dayOfWeek in daysMap) { // Check if the dayOfWeek exists in DaysMap
       const startTimeMySQL = await convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, startTime);
       const endTimeMySQL = await convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
-      console.log("i am inside" + startTimeMySQL && endTimeMySQL);
       if(startTimeMySQL && endTimeMySQL) await saveTimeIntervals(ctx, startTimeMySQL, endTimeMySQL);
     } else {
       ctx.reply(`Invalid day: ${dayOfWeek}`);
@@ -249,6 +255,7 @@ export const generateInterviewerSlots = async (ctx: Context, slots: InterviewerS
 //     ctx.telegram.sendMessage(interviewer!.chat_id, userReminderMessage);
 //   }
 // }
+
 
 
 
