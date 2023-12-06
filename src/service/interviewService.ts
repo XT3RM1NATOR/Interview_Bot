@@ -182,6 +182,34 @@ export const generateSlots = async (ctx: Context, slots: InterviewerSlot[], sess
     }
   }
 }
+//
+export const generateSlotsAdmin = async (ctx: Context, slots: InterviewerSlot[], session: Session) => {
+  for (const slot of slots) {
+    const interviewer = await UserRepository.findOne({where: { id: slot.interviewer_id }});
+
+    const displayStartTime = new Date(slot.start_time);
+    const displayEndTime = new Date(slot.end_time);
+
+    if(session!.timezone_hour !== undefined && session!.timezone_minute !== undefined){
+      displayStartTime.setHours(displayStartTime.getHours() + session!.timezone_hour, displayStartTime.getMinutes() + session!.timezone_minute);
+      displayEndTime.setHours(displayEndTime.getHours() + session!.timezone_hour, displayEndTime.getMinutes() + session!.timezone_minute);
+    }
+    const startTime = displayStartTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit'});
+    const endTime = displayEndTime.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit'});
+
+    const start_date = new Date(displayStartTime.setHours(displayStartTime.getHours() + parseInt(process.env.SERVER_GMT_HOUR!), displayEndTime.getMinutes() + parseInt(process.env.SERVER_GMT_MINUTE!))).toISOString().split('T')[0];
+
+    let message = `ID: ${slot.id}\nДата: ${start_date}\nНачало: ${startTime}\nКонец: ${endTime}\nБио интервьюера: ${interviewer?.description}\nИнтервьюер: @${slot.interviewer_username}`;
+    
+    if(slot.interviewee_id){
+      message += "\n\nСТАТУС: ❌ЗАНЯТ❌";
+      ctx.reply(message);
+    }else{
+      await ctx.reply(message);
+    }
+  }
+}
+//
 
 export const generateIntervieweeSlots = async (ctx: Context, slots: InterviewerSlot[], session: Session, user: User) => {
   for (const slot of slots) {

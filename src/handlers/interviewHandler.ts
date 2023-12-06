@@ -4,7 +4,7 @@ import { logAction } from "../logger/logger";
 import InterviewerSlotRepository from "../repository/InterviewerSlotRepository";
 import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
-import { generateIntervieweeSlots, generateInterviewerSlots, generateSlots, getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
+import { generateIntervieweeSlots, generateInterviewerSlots, generateSlots, generateSlotsAdmin, getTemplateForCurrentWeek, handleTimeSlotInput } from "../service/interviewService";
 import { checkServer } from "../service/messageService";
 import { updateSessionStage } from "../service/sessionService";
 
@@ -163,10 +163,9 @@ export const getSlotsForWeek =  async (ctx: any) => {
   const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
   try {
     if(check){
-      logAction(ctx.from?.username || "Default", "Has chosen to generate slots for the whole week");
+
       const slots = await InterviewerSlotRepository.find();
       if(slots){
-        await generateSlots(ctx, slots, session!);
 
         const options = [
           [`Домой`]
@@ -181,6 +180,13 @@ export const getSlotsForWeek =  async (ctx: any) => {
         });
       } else {
         ctx.reply("В вашем чате на эту дату нет свободных слотов")
+      }
+      logAction(ctx.from?.username || "Default", "Has chosen to generate slots for the whole week");
+
+      if(session!.role === "interviewee"){
+        await generateSlots(ctx, slots, session!);
+      }else{
+        await generateSlotsAdmin(ctx, slots, session!);
       }
     }
   } catch (error) {
