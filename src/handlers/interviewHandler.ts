@@ -226,7 +226,7 @@ export const viewUserSlots = async(ctx: any) => {
       ctx.reply("Ваши слоты", {
         reply_markup: {
           keyboard: options,
-          one_time_keyboard: true, 
+          one_time_keyboard: true,
           resize_keyboard: true
         }
       });
@@ -320,6 +320,18 @@ export const returnUserToMain = async(ctx: any) => {
       ];
     
       ctx.reply("Вы вернулись обратно", {
+        reply_markup: {
+          keyboard: options,
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      });
+    }else if(session!.role === "admin"){
+      const options = [
+        ['Сделать план на неделю', 'Посмотреть мои слоты', 'Cделать объявление']
+      ];
+
+      ctx.reply('Вы вернулись обратно', {
         reply_markup: {
           keyboard: options,
           one_time_keyboard: true,

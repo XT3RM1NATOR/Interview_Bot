@@ -48,9 +48,9 @@ export const startCommand = async (ctx: any) => {
           resize_keyboard: true
         }
       });
-    }else {
+    }else if(user.role === 'admin'){
       const options = [
-        ['Сделать план на неделю', 'Посмотреть мои слоты']
+        ['Сделать план на неделю', 'Посмотреть мои слоты', 'Сделать объявление']
       ];
 
       ctx.reply('Вы уже зарегестрированы что бы удалить аккаунт нажмите /deleteaccount', {
