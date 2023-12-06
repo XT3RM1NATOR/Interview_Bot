@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
+import { cancellSlotCallbackHandler, cancellSlotRegistrationCallbackHandler, slotCallbackHandler } from './handlers/callbackHandler';
 import { changeChatCommand, changeGMTCommand, deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
-import { cancellSlotCallbackHandler, cancellSlotRegistrationCallbackHandler, getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, returnUserToMain, slotCallbackHandler, timeSlotHandler, viewUserSlots } from './handlers/interviewHandler';
+import { getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, returnUserToMain, timeSlotHandler, viewUserSlots } from './handlers/interviewHandler';
 import { announcementHandler } from './handlers/messageHandler';
 import { adminHandler, changeChatCallbackHandler, intervieweeHandler, interviewerHandler, newInterviewerCallbackHandler, registrationHandler, startAction } from './handlers/registrationHandler';
 import { MyContext } from './resource/customTypes/MyContext';
@@ -47,7 +48,7 @@ dotenv.config();
   });
 
   bot.launch();
-  deleteExpiredSlots();
+  await deleteExpiredSlots();
 
 })();
 
