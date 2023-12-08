@@ -290,8 +290,8 @@ export const deleteExpiredSlots = async () => {
     //
   }
 
-  // Schedule the function to run again after a certain interval (e.g., every hour)
-  setTimeout(deleteExpiredSlots, 1000 * 10);
+  // Schedule the function to run again after a certain interva
+  setTimeout(deleteExpiredSlots, 1000 * 60 * 60 * 6);
 };
 
 

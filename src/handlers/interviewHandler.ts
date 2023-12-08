@@ -196,6 +196,7 @@ export const getSlotsForWeek =  async (ctx: any) => {
 }
 
 export const viewUserSlots = async(ctx: any) => {
+  console.log(ctx.session)
   const check = await checkServer(ctx);
   if(check){
     logAction(ctx.from?.username || "Default", `Has choosen to view his registered slots`);

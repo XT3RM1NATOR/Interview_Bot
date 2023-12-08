@@ -1,4 +1,4 @@
-import sessionRepository from "../repository/SessionRepository";
+import { default as SessionRepository, default as sessionRepository } from "../repository/SessionRepository";
 import { convertStringToNumbers } from "./registrationService";
 // Update or clear sessions for all fetched users
 export const updateSessionsForUser = async (ctx: any) => {
@@ -144,6 +144,25 @@ export const deleteSessionById = async (id: number) => {
     }
   } catch (error) {
     console.error("Error deleting session:", error);
+  }
+};
+
+
+// Function to update ctx.session for each chat ID
+export const updateSessions = async (bot: any) => {
+  try {
+    const allSessions = await SessionRepository.find();
+
+    console.log(JSON.stringify(bot) + "\n\n\n\n\n")
+    allSessions.forEach((session) => {
+      bot.context.session.set(session.chat_id, {
+        id: session.id
+      })
+    });
+
+    console.log('Sessions updated successfully!');
+  } catch (error) {
+    console.error('Error updating sessions:', error);
   }
 };
 
