@@ -47,13 +47,13 @@ bot.catch((err: any, ctx: Context) => {
 
 bot.launch({
   webhook: {
-    domain: "https://50c3-188-113-229-119.ngrok-free.app",
+    domain: "https://5fec-45-130-203-65.ngrok-free.app",
     port: Number(process.env.PORT),
   }
 }).then( async() => {
   await deleteExpiredSlots();
   // setInterval(async () => {
-  //   await updateSessions(bot)
+  //   await updateSessions(bot)s
   // }, 2000);
 })
 
