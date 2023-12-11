@@ -51,7 +51,6 @@ export const Confirmation = async (ctx: any, chat_id: number) => {
       }
     });
 
-    console.log('Confirmation sent to interviewer');
   } catch(err){
     console.log(err);
   }
@@ -72,7 +71,6 @@ export const Rejection = async (ctx: any, chat_id: number) => {
       }
     });
 
-    console.log('Confirmation sent to interviewer');
   }catch(err){
     console.log(err);
   }

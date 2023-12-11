@@ -24,8 +24,6 @@ export const saveNewSession = async (ctx: any, chat_id: number, tg_chat_id: numb
     existingSession.interviewer = false;
     existingSession.tg_chat_id = tg_chat_id;
 
-    console.log("Existing session updated successfully!");
-
     return await sessionRepository.save(existingSession);
   } else {
     // Create a new session if the chat_id doesn't exist
@@ -39,7 +37,6 @@ export const saveNewSession = async (ctx: any, chat_id: number, tg_chat_id: numb
       chat_id: chat_id,
       tg_chat_id: tg_chat_id
     });
-    console.log("New session saved successfully!");
 
     return await sessionRepository.save(newSession);
   }
@@ -50,16 +47,10 @@ export const updateSessionRole = async (id: number, newRole: string) => {
     // Fetch session from the repository based on chat_id
     const existingSession = await sessionRepository.findOne({ where: { id: id } });
 
-    if (existingSession) {
-      // Update the role
-      existingSession.role = newRole;
-      
-      console.log("Role updated successfully!");
-      // Save the changes to the database
-      await sessionRepository.save(existingSession);
-    } else {
-      console.log("Session not found.");
-    }
+    // Update the role
+    existingSession!.role = newRole;
+    // Save the changes to the database
+    await sessionRepository.save(existingSession!);
   } catch (error) {
     console.error("Error updating role:", error);
   }
@@ -69,13 +60,9 @@ export const updateSessionStage = async (id: number, stageId: number) => {
   try {
     const existingSession = await sessionRepository.findOne({ where: { id: id } });
 
-    if (existingSession) {
-      existingSession.stageId = stageId;
-      await sessionRepository.save(existingSession);
-      console.log("Stage ID updated successfully!");
-    } else {
-      console.log("Session not found.");
-    }
+    existingSession!.stageId = stageId;
+    await sessionRepository.save(existingSession!);
+
   } catch (error) {
     console.error("Error updating stage ID:", error);
   }
@@ -90,9 +77,6 @@ export const updateSessionTimezone = async (id: number, newTimezone: string) => 
       existingSession.timezone_hour = timezone[0];
       existingSession.timezone_minute = timezone[1] || 0;
       await sessionRepository.save(existingSession);
-      console.log("Timezone updated successfully!");
-    } else {
-      console.log("Session not found.");
     }
   } catch (error) {
     console.error("Error updating timezone:", error);
@@ -104,13 +88,9 @@ export const updateSessionDescription = async (id: number, newDescription: strin
   try {
     const existingSession = await sessionRepository.findOne({ where: { id: id } });
 
-    if (existingSession) {
-      existingSession.description = newDescription;
-      await sessionRepository.save(existingSession);
-      console.log("Description updated successfully!");
-    } else {
-      console.log("Session not found.");
-    }
+    existingSession!.description = newDescription;
+    await sessionRepository.save(existingSession!);
+
   } catch (error) {
     console.error("Error updating description:", error);
   }
@@ -120,13 +100,9 @@ export const updateSessionInterviewer = async (id: number, isInterviewer: boolea
   try {
     const existingSession = await sessionRepository.findOne({ where: { id: id } });
 
-    if (existingSession) {
-      existingSession.interviewer = isInterviewer;
-      await sessionRepository.save(existingSession);
-      console.log("Interviewer updated successfully!");
-    } else {
-      console.log("Session not found.");
-    }
+    existingSession!.interviewer = isInterviewer;
+    await sessionRepository.save(existingSession!);
+
   } catch (error) {
     console.error("Error updating interviewer:", error);
   }
@@ -136,12 +112,7 @@ export const deleteSessionById = async (id: number) => {
   try {
     const sessionToDelete = await sessionRepository.findOne({ where: { id: id } });
 
-    if (sessionToDelete) {
-      await sessionRepository.remove(sessionToDelete);
-      console.log("Session deleted successfully!");
-    } else {
-      console.log("Session not found.");
-    }
+    await sessionRepository.remove(sessionToDelete!);
   } catch (error) {
     console.error("Error deleting session:", error);
   }
@@ -152,15 +123,12 @@ export const deleteSessionById = async (id: number) => {
 export const updateSessions = async (bot: any) => {
   try {
     const allSessions = await SessionRepository.find();
-
-    console.log(JSON.stringify(bot) + "\n\n\n\n\n")
     allSessions.forEach((session) => {
       bot.context.session.set(session.chat_id, {
         id: session.id
       })
     });
 
-    console.log('Sessions updated successfully!');
   } catch (error) {
     console.error('Error updating sessions:', error);
   }

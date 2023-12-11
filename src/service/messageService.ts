@@ -88,7 +88,6 @@ export const broadcastMessageToAllUsers = async (ctx: any) => {
   try {
     const users = await UserRepository.find();
     const message = ctx.message.text;
-    console.log(message)
     for (const user of users) {
       if(user.chat_id === ctx.chat.id) continue;
       await ctx.telegram.sendMessage(user.chat_id, message); // Send the message to each user
@@ -107,7 +106,6 @@ export const broadcastMessageToAllUsers = async (ctx: any) => {
       }
     });
 
-    console.log("Message broadcasted to all users successfully.");
   } catch (error) {
     console.error("Error broadcasting message:", error);
   }

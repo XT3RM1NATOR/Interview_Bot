@@ -275,7 +275,6 @@ export const generateInterviewerSlots = async (ctx: Context, slots: InterviewerS
 export const deleteExpiredSlots = async () => {
   try {
     const currentDate = new Date(); // Current date and time
-    console.log(currentDate.toISOString())
     // Find and delete slots where the end time has passed
     const expiredSlots = await InterviewerSlotRepository.find({
       where: { end_time: LessThan(currentDate) }
@@ -283,8 +282,7 @@ export const deleteExpiredSlots = async () => {
 
     if (expiredSlots.length > 0) {
       // Delete expired slots from the database
-      const poo = await InterviewerSlotRepository.remove(expiredSlots);
-      console.log("Expired slots have been deleted:", poo);
+      await InterviewerSlotRepository.remove(expiredSlots);
     }
   } catch (error) {
     //
