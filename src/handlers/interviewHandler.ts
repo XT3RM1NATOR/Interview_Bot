@@ -12,7 +12,7 @@ export const planHandler = async (ctx:any) => {
   const check = await checkServer(ctx);
   if(check){
     logAction(ctx.from?.username || "Default", "Has initiated a week planner");
-    const instructions = "Кидай в определенном формате ниже шаблон на эту неделю: (Время только ровное по 30 минут промежуткам, например 15:00 или 14:30)";
+    const instructions = "Пришлите в определенном формате ниже шаблон на эту неделю: (Время только ровное по 30 минут промежуткам, например 15:00 или 14:30)\n\nСлоты могут быть от 1+ часа";
     const options = [
       [`Домой`]
     ];
@@ -65,7 +65,7 @@ export const timeSlotHandler = async (ctx: any) => {
       handleTimeSlotInput(ctx);
     }
   } else {
-    ctx.reply("Вы не авторизованы для команды или сервер был перезагружен. Повторите сообщение");
+    ctx.reply("Вы не авторизованы для команды");
   }
 };
 
@@ -153,7 +153,6 @@ export const getSlotsByDate = async (ctx: any) => {
     }
   } catch (error) {
     console.error("Error fetching slots by date:", error);
-    ctx.reply("There was an error fetching slots for the specified date.");
   }
 };
 

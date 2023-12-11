@@ -148,7 +148,7 @@ export const handleTimeSlotInput = async (ctx: any) => {
       const endTimeMySQL = await convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
       if(startTimeMySQL && endTimeMySQL) await saveTimeIntervals(ctx, startTimeMySQL, endTimeMySQL);
     } else {
-      ctx.reply(`Invalid day: ${dayOfWeek}`);
+      ctx.reply(`Неправильный день: ${dayOfWeek}`);
     }
   });
   const session = await SessionRepository.findOne( { where: { id: ctx.session.id } } )

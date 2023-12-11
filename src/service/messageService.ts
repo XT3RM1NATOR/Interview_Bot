@@ -58,7 +58,7 @@ export const case2 = async(ctx: any) => {
     await updateSessionTimezone(ctx.session.id, ctx.message.text);
     await updateSessionStage(ctx.session.id, 3);
 
-    ctx.reply("Введи краткое описание о себе для общей информации чем занимался и т.д.");
+    ctx.reply("Введи краткое описание о себе. Для общей информации чем занимался и т.д.");
   } else {
     ctx.reply("Введи время в корректной форме");
   }
@@ -69,7 +69,7 @@ export const case1 = async(ctx: any) => {
     await updateSessionStage(ctx.session.id, 2);
     await updateSessionRole(ctx.session.id, 'admin');
 
-    ctx.reply('Ты теперь админ! Теперь напиши часовой пояс GMT (твоего местонахождения) в формате "5" or "-4.30" ');
+    ctx.reply('Ты теперь админ! Напиши часовой пояс GMT (твоего местонахождения) в формате "5" или "-4.30" ');
   } else {
     ctx.reply('Введи правильный пароль');
   }

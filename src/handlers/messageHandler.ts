@@ -11,7 +11,7 @@ export const announcementHandler = async (ctx: any) => {
         ctx.reply("Пришлите оповещение");
         await updateSessionStage(ctx.session.id, 6);
       }else {
-        ctx.reply("вы не авторизованы для этой команды");
+        ctx.reply("Вы не авторизованы для этой команды");
       }
     }catch(err){
       console.log(err);

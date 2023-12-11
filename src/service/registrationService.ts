@@ -86,7 +86,7 @@ export const changeDescription = async (ctx: any, chatId: number, newDescription
       ctx.reply("Описание успешно обновлено");
 
     } else {
-      ctx.reply("Ты еще не зарегистрировался");
+      ctx.reply("Вы еще не зарегистрировались");
     }
 
   } catch (err) {
@@ -126,7 +126,7 @@ export const acceptCallback = async (ctx: any, userId: number) => {
       user!.approved = true;
       await UserRepository.save(user!);
       Confirmation(ctx, user!.chat_id);
-      ctx.reply("Юзер успешно одобрен!");
+      ctx.reply("Интервьюер успешно одобрен!");
     }else {
       if(user!.approved){
         ctx.reply("Интервьюер уже одобрен")

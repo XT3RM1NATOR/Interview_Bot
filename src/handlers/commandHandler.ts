@@ -12,10 +12,10 @@ export const newDescriptionCommand = async (ctx: any) => {
   const check = await checkServer(ctx);
   if (check) {
     logAction(ctx.from?.username || "Default", "Has changed the description");
-    ctx.reply("Кидай новое описание");
+    ctx.reply("Пришлите новое описание");
     await updateSessionStage(ctx.session.id, 4);
   } else {
-    ctx.reply("Для начала нажми /start или повтори комманду");
+    ctx.reply("Для начала нажмите /start");
   }
 };
 
@@ -126,9 +126,9 @@ export const changeGMTCommand = async (ctx: any) => {
   if (check) {
     logAction(ctx.from?.username || "Default", "Has changed the GMT Timezone");
     await updateSessionStage(ctx.session.id, 7);
-    ctx.reply("Кидай новый часовой пояс");
+    ctx.reply("Пришлите новый часовой пояс");
   } else {
-    ctx.reply("Для начала нажми /start или повтори комманду");
+    ctx.reply("Для начала нажмите /start");
   }
 }
 

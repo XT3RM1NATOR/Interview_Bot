@@ -9,7 +9,7 @@ import { clearMessagesToDelete, messagesToDelete } from "./commandHandler";
 
 export const adminHandler = async (ctx: any) => {
   await updateSessionStage(ctx.session.id, 1);
-  ctx.reply('Ты выбрал админа, введи пароль:');
+  ctx.reply('Вы выбрали админа, введите пароль:');
 }
 
 export const interviewerHandler = async(ctx: any) => {
