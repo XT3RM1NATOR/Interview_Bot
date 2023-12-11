@@ -8,7 +8,7 @@
 -- DROP TABLE IF EXISTS tg_chat;
 
 
--- -- Таблица для списка доступных чатов
+-- -- Table for the user data
 -- CREATE TABLE user (
 --   id INT AUTO_INCREMENT PRIMARY KEY,
 --   username VARCHAR(255) UNIQUE NOT NULL,
@@ -21,6 +21,7 @@
 --   tg_chat_id INT NOT NULl
 -- );
 
+-- -- Table for the session data
 -- CREATE TABLE session (
 -- 	id INT AUTO_INCREMENT PRIMARY KEY,
 -- 	role VARCHAR(20),

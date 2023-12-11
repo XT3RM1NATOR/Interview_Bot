@@ -47,7 +47,7 @@ bot.catch((err: any, ctx: Context) => {
 
 bot.launch({
   webhook: {
-    domain: "https://5fec-45-130-203-65.ngrok-free.app",
+    domain: process.env.DOMAIN!,
     port: Number(process.env.PORT),
   }
 }).then( async() => {
