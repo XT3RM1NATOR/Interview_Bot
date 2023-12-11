@@ -67,11 +67,34 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
 
     while (currentTime < endDateTime) {
       const nextTime = new Date(currentTime.getTime() + interval);
-      
-      // Check if the remaining time is less than an hour and discard the last interval if so
-      if (endDateTime.getTime() - nextTime.getTime() < 60 * 60 * 1000) {
-        console.log("i am here")
-        break;
+
+      // Check if the remaining time is less than 1.5 hours
+      if (endDateTime.getTime() - currentTime.getTime() < interval) {
+        // Check if the remaining time is more than 1 hour but less than 1.5 hours
+        if (endDateTime.getTime() - currentTime.getTime() >= 60 * 60 * 1000) {
+          // Include the last interval (between 1 and 1.5 hours)
+          const interviewer = await checkUser(ctx);
+          const slot = new InterviewerSlot();
+          const check_slot = await InterviewerSlotRepository.findOne({
+            where: {
+              start_time: currentTime,
+              interviewer_id: interviewer!.id,
+            },
+          });
+
+          if (session && !check_slot) {
+            slot.start_time = currentTime;
+            slot.end_time = endDateTime;
+            slot.interviewer_username = ctx.message.from.username;
+            slot.chat_id = session.tg_chat_id;
+            slot.interviewer_id = interviewer!.id;
+
+            slotsToSave.push(slot);
+          }
+          break;
+        } else {
+          break; // Less than 1 hour remaining, exit loop
+        }
       }
 
       const interviewer = await checkUser(ctx);
@@ -85,7 +108,7 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
 
       if (session && !check_slot) {
         slot.start_time = currentTime;
-        slot.end_time = nextTime;
+        slot.end_time = nextTime > endDateTime ? endDateTime : nextTime;
         slot.interviewer_username = ctx.message.from.username;
         slot.chat_id = session.tg_chat_id;
         slot.interviewer_id = interviewer!.id;
@@ -101,6 +124,7 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
     console.log(err);
   }
 };
+
 
 
 export const handleTimeSlotInput = async (ctx: any) => {
