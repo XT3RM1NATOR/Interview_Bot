@@ -3,7 +3,7 @@ import { logAction } from '../logger/logger';
 import SessionRepository from "../repository/SessionRepository";
 import UserRepository from "../repository/UserRepository";
 import { addUserToDatabase, isValidGMTFormat } from '../service/registrationService';
-import { updateSessionDescription, updateSessionRole, updateSessionStage, updateSessionTimezone, updateSessionsForUser } from '../service/sessionService';
+import { updateSessionDescription, updateSessionRole, updateSessionStage, updateSessionTimezone } from '../service/sessionService';
 
 export const case3 = async(ctx: any) => {
   await updateSessionDescription(ctx.session.id, ctx.message.text);
@@ -77,9 +77,14 @@ export const case1 = async(ctx: any) => {
 
 export const checkServer = async (ctx: any) => {
   if(ctx.session === undefined){
-    ctx.reply("Сервер был перезагружен. Повторите сообщение");
-    await updateSessionsForUser(ctx);
-    return false;
+    const session = await SessionRepository.findOne( { where: { chat_id: ctx.chat.id } } );
+    if(session){
+      ctx.session.id = session.id;
+      return true;
+    }else{
+      ctx.reply("У вас нет аккаунта");
+      return false;
+    }
   }
   return true
 };
