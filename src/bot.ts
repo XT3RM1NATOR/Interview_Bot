@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { Context, Telegraf, session } from 'telegraf';
-import { cancellSlotCallbackHandler, cancellSlotRegistrationCallbackHandler, slotCallbackHandler } from './handlers/callbackHandler';
+import { cancelSlotCallbackHandler, cancelSlotRegistrationCallbackHandler, slotCallbackHandler } from './handlers/callbackHandler';
 import { changeChatCommand, changeGMTCommand, deleteAccountCommand, newDescriptionCommand, startCommand } from "./handlers/commandHandler";
 import { getSlotsByDate, getSlotsForWeek, interviewRegistrationHandler, planHandler, returnUserToMain, timeSlotHandler, viewUserSlots } from './handlers/interviewHandler';
 import { announcementHandler } from './handlers/messageHandler';
@@ -24,8 +24,8 @@ bot.action(["accept_nodejs", "accept_react", "accept_js"], startAction);
 bot.action(/^accept_(react|nodejs|js)_change$/, changeChatCallbackHandler);
 bot.action(/^select_slot_\d+_\d+$/, slotCallbackHandler);
 bot.action(/^(accept|reject)_[0-9]+$/, newInterviewerCallbackHandler);
-bot.action(/^cancel_slot_\d+_\d+$/, cancellSlotRegistrationCallbackHandler);
-bot.action(/^cancel_slot_\d+$/, cancellSlotCallbackHandler);
+bot.action(/^cancel_slot_\d+_\d+$/, cancelSlotRegistrationCallbackHandler);
+bot.action(/^cancel_slot_\d+$/, cancelSlotCallbackHandler);
 
 bot.hears('Интервьюер', interviewerHandler);
 bot.hears('Собеседуемый', intervieweeHandler);
@@ -52,8 +52,5 @@ bot.launch({
   }
 }).then( async() => {
   await deleteExpiredSlots();
-  // setInterval(async () => {
-  //   await updateSessions(bot)s
-  // }, 2000);
 })
 

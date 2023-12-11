@@ -24,13 +24,13 @@
 -- CREATE TABLE session (
 -- 	id INT AUTO_INCREMENT PRIMARY KEY,
 -- 	role VARCHAR(20),
---   timezone_hour INT,
---   timezone_minute INT,
---   description VARCHAR(500),
---   interviewer BOOLEAN,
---   stageId INT,
---   chat_id BIGINT NOT NULL,
---   tg_chat_id INT
+--  timezone_hour INT,
+--  timezone_minute INT,
+--  description VARCHAR(500),
+--  interviewer BOOLEAN,
+--  stageId INT,
+--  chat_id BIGINT NOT NULL,
+--  tg_chat_id INT
 -- );
 
 -- -- Table for the list of available chats

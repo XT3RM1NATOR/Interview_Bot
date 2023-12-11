@@ -33,7 +33,7 @@ export const slotCallbackHandler = async (ctx: any) => {
   }
 };
 
-export const cancellSlotRegistrationCallbackHandler = async (ctx: any) => {
+export const cancelSlotRegistrationCallbackHandler = async (ctx: any) => {
   try{
     const callbackMessageId = ctx.callbackQuery.message.message_id;
     const chatId = ctx.callbackQuery.message.chat.id;
@@ -63,7 +63,7 @@ export const cancellSlotRegistrationCallbackHandler = async (ctx: any) => {
   }
 };
 
-export const cancellSlotCallbackHandler = async (ctx: any) => {
+export const cancelSlotCallbackHandler = async (ctx: any) => {
   try{
     logAction(ctx.from?.username || "Default", `Has cancelled his slot`);
     const callbackMessageId = ctx.callbackQuery.message.message_id;
