@@ -76,17 +76,21 @@ export const case1 = async(ctx: any) => {
 };
 
 export const checkServer = async (ctx: any) => {
-  if(ctx.session === undefined){
-    const session = await SessionRepository.findOne( { where: { chat_id: ctx.chat.id } } );
-    if(session){
-      ctx.session.id = session.id;
-      return true;
-    }else{
-      ctx.reply("У вас нет аккаунта");
-      return false;
+  try{
+    if(ctx.session === undefined){
+      const session = await SessionRepository.findOne( { where: { chat_id: ctx.chat.id } } );
+      if(session){
+        ctx.session = session.id;
+        return true;
+      }else{
+        ctx.reply("У вас нет аккаунта. /start");
+        return false;
+      }
     }
+    return true
+  }catch(err){
+    console.log(err);
   }
-  return true
 };
 
 export const broadcastMessageToAllUsers = async (ctx: any) => {

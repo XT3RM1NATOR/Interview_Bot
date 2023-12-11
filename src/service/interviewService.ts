@@ -55,9 +55,9 @@ export const convertToMySQLDateFormat = async (ctx: any, daysMap: DaysMap, dayOf
 };
 
 export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endDateTimeStr: string) => {
-  try{
-    const interval = 30 * 60 * 1000; // 30 minutes in milliseconds
-    const session = await SessionRepository.findOne({where: { id: ctx.session.id }});
+  try {
+    const interval = 90 * 60 * 1000; // 1.5 hours in milliseconds
+    const session = await SessionRepository.findOne({ where: { id: ctx.session.id } });
     const startDateTime = new Date(startDateTimeStr);
     const endDateTime = new Date(endDateTimeStr);
 
@@ -67,17 +67,23 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
 
     while (currentTime < endDateTime) {
       const nextTime = new Date(currentTime.getTime() + interval);
-      if (nextTime > endDateTime) {
-        nextTime.setTime(endDateTime.getTime());
+      
+      // Check if the remaining time is less than an hour and discard the last interval if so
+      if (endDateTime.getTime() - nextTime.getTime() < 60 * 60 * 1000) {
+        console.log("i am here")
+        break;
       }
+
       const interviewer = await checkUser(ctx);
       const slot = new InterviewerSlot();
-      const check_slot = await InterviewerSlotRepository.findOne({where: {
-        start_time: currentTime,
-        interviewer_id: interviewer!.id
-      }})
+      const check_slot = await InterviewerSlotRepository.findOne({
+        where: {
+          start_time: currentTime,
+          interviewer_id: interviewer!.id,
+        },
+      });
 
-      if(session && !check_slot){
+      if (session && !check_slot) {
         slot.start_time = currentTime;
         slot.end_time = nextTime;
         slot.interviewer_username = ctx.message.from.username;
@@ -89,11 +95,13 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
 
       currentTime = nextTime;
     }
+
     await InterviewerSlotRepository.save(slotsToSave);
-  }catch(err){
+  } catch (err) {
     console.log(err);
   }
-}
+};
+
 
 export const handleTimeSlotInput = async (ctx: any) => {
 
