@@ -126,7 +126,7 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
 };
 
 
-
+//convert day input fromt he bot into valid dates
 export const handleTimeSlotInput = async (ctx: any) => {
 
   const input = ctx.message.text;
