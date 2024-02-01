@@ -1,4 +1,4 @@
-# Interview Scheduler Bot for nodejs_ru Telegram Group
+# Interview Scheduler Bot
 
 This project provides an automated interview scheduling bot for the [nodejs_ru Telegram group](https://t.me/nodejs_ru). The bot streamlines the process of scheduling practice interviews without relying on manual communication within the chat.
 
@@ -46,22 +46,6 @@ This project provides an automated interview scheduling bot for the [nodejs_ru T
     ```
 
 5. Run the PostgreSQL script in pgAdmin to set up the database.
-
-## Usage
-
-1. **ngrok Setup**:
-   - Download and install ngrok.
-   - Run `ngrok http <your_port_number>` to get a secure public URL for your local server.
-   - Copy and paste the generated URL into the `.env` file as `DOMAIN`.
-
-2. **Telegram Bot Setup**:
-   - Create a bot using BotFather on Telegram.
-   - Obtain the token for the created bot.
-   - Insert the token into the `.env` file as `BOT_TOKEN`.
-
-## Contributing
-
-Contributions are welcome! If you'd like to contribute to this project, please fork the repository and submit a pull request.
 
 ## License
 
