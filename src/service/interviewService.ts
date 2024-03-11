@@ -15,7 +15,7 @@ dotenv.config();
 export const getTemplateForCurrentWeek = () => {
   const daysOfWeek = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
   const today = new Date();
-  const currentDayIndex = today.getDay(); // 0 for Sunday, 1 for Monday, and so on
+  const currentDayIndex = today.getDay(); 
   const daysInWeek = 7;
 
   const remainingDays = daysOfWeek.slice(currentDayIndex).concat(daysOfWeek.slice(0, currentDayIndex));
@@ -38,16 +38,16 @@ export const convertToMySQLDateFormat = async (ctx: any, daysMap: DaysMap, dayOf
   const targetDate = new Date(today);
   targetDate.setDate(today.getDate() + dayDifference);
   const [hours, minutes] = time.split(':').map(Number);
-  // Apply the UTC time with the additional offset
+
   if(session!.timezone_hour !== undefined && session!.timezone_minute !== undefined){
       const targetUTCTime = Date.UTC(
       targetDate.getFullYear(),
       targetDate.getMonth(),
       targetDate.getDate(),
-      hours - session!.timezone_hour, // Apply the additional offset for hours
-      minutes - session!.timezone_minute // Apply the additional offset for minutes
+      hours - session!.timezone_hour, 
+      minutes - session!.timezone_minute
     );
-    // Create a new date object from the UTC time with the offset
+
     const targetDateWithOffset = new Date(targetUTCTime);
     const mysqlDateFormat = targetDateWithOffset.toISOString().slice(0, 19).replace('T', ' ');
     return mysqlDateFormat;
@@ -56,7 +56,7 @@ export const convertToMySQLDateFormat = async (ctx: any, daysMap: DaysMap, dayOf
 
 export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endDateTimeStr: string) => {
   try {
-    const interval = 90 * 60 * 1000; // 1.5 hours in milliseconds
+    const interval = 90 * 60 * 1000;
     const session = await SessionRepository.findOne({ where: { id: ctx.session.id } });
     const startDateTime = new Date(startDateTimeStr);
     const endDateTime = new Date(endDateTimeStr);
@@ -68,11 +68,8 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
     while (currentTime < endDateTime) {
       const nextTime = new Date(currentTime.getTime() + interval);
 
-      // Check if the remaining time is less than 1.5 hours
       if (endDateTime.getTime() - currentTime.getTime() < interval) {
-        // Check if the remaining time is more than 1 hour but less than 1.5 hours
         if (endDateTime.getTime() - currentTime.getTime() >= 60 * 60 * 1000) {
-          // Include the last interval (between 1 and 1.5 hours)
           const interviewer = await checkUser(ctx);
           const slot = new InterviewerSlot();
           const check_slot = await InterviewerSlotRepository.findOne({
@@ -93,7 +90,7 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
           }
           break;
         } else {
-          break; // Less than 1 hour remaining, exit loop
+          break;
         }
       }
 
@@ -125,8 +122,6 @@ export const saveTimeIntervals = async (ctx: any, startDateTimeStr: string, endD
   }
 };
 
-
-//convert day input fromt he bot into valid dates
 export const handleTimeSlotInput = async (ctx: any) => {
 
   const input = ctx.message.text;
@@ -143,7 +138,7 @@ export const handleTimeSlotInput = async (ctx: any) => {
   };
   dayTimePairs.forEach(async (dayTimePair: string) => {
     const [dayOfWeek, startTime, endTime] = dayTimePair.split(/:\s|-/);
-    if (dayOfWeek in daysMap) { // Check if the dayOfWeek exists in DaysMap
+    if (dayOfWeek in daysMap) { 
       const startTimeMySQL = await convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, startTime);
       const endTimeMySQL = await convertToMySQLDateFormat(ctx, daysMap, dayOfWeek as keyof DaysMap, endTime);
       if(startTimeMySQL && endTimeMySQL) await saveTimeIntervals(ctx, startTimeMySQL, endTimeMySQL);
@@ -306,21 +301,18 @@ export const generateInterviewerSlots = async (ctx: Context, slots: InterviewerS
 
 export const deleteExpiredSlots = async () => {
   try {
-    const currentDate = new Date(); // Current date and time
-    // Find and delete slots where the end time has passed
+    const currentDate = new Date();
     const expiredSlots = await InterviewerSlotRepository.find({
       where: { end_time: LessThan(currentDate) }
     });
 
     if (expiredSlots.length > 0) {
-      // Delete expired slots from the database
       await InterviewerSlotRepository.remove(expiredSlots);
     }
   } catch (error) {
     //
   }
 
-  // Schedule the function to run again after a certain interva
   setTimeout(deleteExpiredSlots, 1000 * 60 * 60 * 6);
 };
 
