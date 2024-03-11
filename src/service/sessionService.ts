@@ -6,7 +6,6 @@ export const saveNewSession = async (ctx: any, chat_id: number, tg_chat_id: numb
   const existingSession = await sessionRepository.findOne({ where: { chat_id: chat_id } });
 
   if (existingSession) {
-    // Update the existing session with new values
     existingSession.role = "";
     existingSession.stageId = 0;
     existingSession.timezone_hour = 0;
@@ -17,7 +16,6 @@ export const saveNewSession = async (ctx: any, chat_id: number, tg_chat_id: numb
 
     return await sessionRepository.save(existingSession);
   } else {
-    // Create a new session if the chat_id doesn't exist
     const newSession = sessionRepository.create({
       role: "",
       stageId: 0,
@@ -35,12 +33,9 @@ export const saveNewSession = async (ctx: any, chat_id: number, tg_chat_id: numb
 
 export const updateSessionRole = async (id: number, newRole: string) => {
   try {
-    // Fetch session from the repository based on chat_id
     const existingSession = await sessionRepository.findOne({ where: { id: id } });
 
-    // Update the role
     existingSession!.role = newRole;
-    // Save the changes to the database
     await sessionRepository.save(existingSession!);
   } catch (error) {
     console.error("Error updating role:", error);
@@ -74,7 +69,6 @@ export const updateSessionTimezone = async (id: number, newTimezone: string) => 
   }
 };
 
-// Function to update session description
 export const updateSessionDescription = async (id: number, newDescription: string) => {
   try {
     const existingSession = await sessionRepository.findOne({ where: { id: id } });
