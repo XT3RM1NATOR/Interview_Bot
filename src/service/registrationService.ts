@@ -42,12 +42,12 @@ export const Confirmation = async (ctx: any, chat_id: number) => {
     const options = [
       [`Сделать план на неделю`, `Посмотреть мои слоты`]
     ];
-      // Send the message to admins
+
     await ctx.telegram.sendMessage(chat_id, "Вы были одобрены! Что теперь?", {
       reply_markup: {
         keyboard: options,
-        one_time_keyboard: true, // Hide the keyboard after a choice is made
-        resize_keyboard: true // Allow the keyboard to be resized by the user
+        one_time_keyboard: true,
+        resize_keyboard: true 
       }
     });
 
@@ -62,7 +62,7 @@ export const Rejection = async (ctx: any, chat_id: number) => {
     const options = [
       [`Зарег. как собеседуемый`]
     ];
-      // Send the message to admins
+
     await ctx.telegram.sendMessage(chat_id, "Вы не были одобрены... Что теперь?", {
       reply_markup: {
         keyboard: options,
@@ -116,7 +116,6 @@ export const checkUser = async(ctx: any) => {
   return user;
 }
 
-// Accept callback function
 export const acceptCallback = async (ctx: any, userId: number) => {
   try {
     const user = await UserRepository.findOne({ where: { id: userId } });
@@ -138,7 +137,6 @@ export const acceptCallback = async (ctx: any, userId: number) => {
   }
 };
 
-// Reject callback function
 export const rejectCallback = async (ctx: any, userId: number) => {
   try {
     const user = await UserRepository.findOne({ where: { id: userId } });
@@ -163,11 +161,10 @@ export const convertStringToNumbers = (input: string): number[] | [number, numbe
     const parsedHours = parseInt(hours, 10);
     const parsedMinutes = parseInt(minutes, 10);
 
-    // Ensure both hours and minutes are negative if input is in negative time format
     const negativeMinutes = input.startsWith('-') ? -parsedMinutes : parsedMinutes;
     return [parsedHours, negativeMinutes];
   } else {
-    return undefined; // Returning undefined for invalid input
+    return undefined; 
   }
 }
 
